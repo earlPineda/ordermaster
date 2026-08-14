@@ -1,0 +1,6 @@
+{
+  "name": "Avenue Café",
+  "description": "Avenue Café online ordering system featuring artisan coffee, espresso, fresh pastries, gourmet paninis, live order tracking, admin console, and MySQL script exporter.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

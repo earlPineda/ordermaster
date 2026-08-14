@@ -1,0 +1,27 @@
+# Render.com free hosting configuration for Avenue Café.
+# Free tier = Free Web Service (512MB RAM, sleeps after 15 min idle).
+#
+# After this repo is on GitHub, deploy in 2 clicks:
+#   1) New -> Web Service -> connect your GitHub repo
+#   2) Render auto-detects Node (or uses this file) -> Deploy.
+#
+# Environment variables that need to be added in the Render Dashboard
+# under Settings -> Environment -> Environment Variables / Secrets
+# (never commit a real .env — it is gitignored):
+#
+#   GEMINI_API_KEY   Your Google Gemini API key (used by the server-side AI feature).
+#
+# NODE_ENV is pinned to "production" below so the Express server serves
+# the built static frontend from /dist instead of mounting Vite middleware.
+services:
+  - type: web
+    name: avenue-cafe
+    env: node
+    plan: free
+    nodeVersion: '20'
+    autoDeploy: true
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
