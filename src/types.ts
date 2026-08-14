@@ -81,3 +81,25 @@ export interface DashboardStats {
   averageOrderValue: number;
   topProducts: { name: string; count: number; totalSales: number }[];
 }
+
+// --- Authentication Types ---
+
+export type UserRole = 'customer' | 'admin';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+}
+
+// Store credentials (in production, use a backend API)
+export const CUSTOMER_CREDENTIALS = {
+  username: 'customer',
+  password: 'customer123',
+};
+
+export const ADMIN_CREDENTIALS = {
+  username: 'admin',
+  password: 'admin123',
+};

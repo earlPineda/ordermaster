@@ -7,8 +7,9 @@ import { OrderTrackerModal } from './components/OrderTrackerModal';
 import { AdminDashboard } from './components/AdminDashboard';
 import { AdminLogin } from './components/AdminLogin';
 import { NotificationToast } from './components/NotificationToast';
-import { Category, Product, CartItem, Order, OrderStatus, AdminNotification, DashboardStats, DeliveryType } from './types';
+import { Category, Product, CartItem, Order, OrderStatus, AdminNotification, DashboardStats, DeliveryType, UserRole } from './types';
 import { soundManager } from './utils/audio';
+import { useAuth } from './utils/auth';
 
 type View = 'customer' | 'admin' | 'tracker';
 
@@ -17,17 +18,39 @@ const getViewFromPath = (): View =>
   window.location.pathname.startsWith('/admin') ? 'admin' : 'customer';
 
 export default function App() {
-  const [activeView, setActiveView] = useState<View>(getViewFromPath);
+  const { user, isAuthenticated, login, logout, role } = useAuth();
 
-  // Admin personal-account authentication (persisted in localStorage)
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
-    try {
-      return window.localStorage.getItem('avenue_admin_auth') === '1';
-    } catch {
-      return false;
+  // Keep the view in sync when the user uses the browser back/forward buttons
+  useEffect(() => {
+    const onPopState = () => {
+      const detectedView = getViewFromPath();
+      navigate(detectedView);
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  // Navigate between customer ("/") and admin ("/admin")
+  const navigate = (view: View) => {
+    const path = view === 'admin' ? '/admin' : '/';
+    if (window.location.pathname !== path) {
+      window.history.pushState({}, '', path);
     }
-  });
-  const [products, setProducts] = useState<Product[]>([]);
+    setActiveView(view);
+  };
+
+  // Handle admin login from AdminLogin component
+  const handleAdminLogin = (success: boolean) => {
+    if (success) {
+      // User is already logged in via useAuth
+    }
+  };
+
+  // Handle admin logout
+  const handleAdminLogout = () => {
+    logout();
+    navigate('customer');
+  };
   const [categories] = useState<Category[]>([
     'All',
     'Espresso & Coffee',
@@ -321,6 +344,8 @@ export default function App() {
         setSoundEnabled={setSoundEnabled}
         onOpenTracker={() => setIsTrackerOpen(true)}
         onLogout={handleAdminLogout}
+        user={user}
+        role={role}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
@@ -340,7 +365,7 @@ export default function App() {
         )}
 
         {activeView === 'admin' && (
-          isAdminAuthenticated ? (
+          isAuthenticated && role === 'admin' ? (
             <AdminDashboard
               orders={orders}
               products={products}

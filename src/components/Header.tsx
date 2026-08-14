@@ -13,6 +13,8 @@ interface HeaderProps {
   setSoundEnabled: (enabled: boolean) => void;
   onOpenTracker: () => void;
   onLogout: () => void;
+  user: { id: string; name: string; email: string; role: UserRole } | null;
+  role: UserRole | null;
   searchQuery: string;
   setSearchQuery: (q: string) => void;
 }
@@ -22,11 +24,14 @@ export const Header: React.FC<HeaderProps> = ({
   setActiveView,
   cartItems,
   setIsCartOpen,
+  notifications,
   unreadCount,
   soundEnabled,
   setSoundEnabled,
   onOpenTracker,
   onLogout,
+  user,
+  role,
   searchQuery,
   setSearchQuery
 }) => {
@@ -145,6 +150,31 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
               </button>
+
+              {/* User Display & Logout */}
+              {role === 'admin' ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-xs">
+                    {user?.name?.charAt(0) || 'A'}
+                  </div>
+                  <span className="text-slate-300 text-sm">Admin</span>
+                  <button
+                    onClick={onLogout}
+                    title="Sign Out"
+                    className="ml-2 p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-700/30 transition-all"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                /* Customer display */
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-slate-950 font-bold text-xs">
+                    {user?.name?.charAt(0) || 'C'}
+                  </div>
+                  <span className="text-slate-300 text-sm">Customer</span>
+                </div>
+              )}
 
               {/* Shopping Cart Button */}
               <button
