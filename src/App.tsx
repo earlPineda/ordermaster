@@ -5,52 +5,27 @@ import { CartDrawer } from './components/CartDrawer';
 import { CheckoutModal } from './components/CheckoutModal';
 import { OrderTrackerModal } from './components/OrderTrackerModal';
 import { AdminDashboard } from './components/AdminDashboard';
-import { AdminLogin } from './components/AdminLogin';
 import { NotificationToast } from './components/NotificationToast';
 import { Category, Product, CartItem, Order, OrderStatus, AdminNotification, DashboardStats, DeliveryType, UserRole } from './types';
 import { soundManager } from './utils/audio';
 import { useAuth } from './utils/auth';
 
-type View = 'customer' | 'admin' | 'tracker';
+type View = 'landing' | 'customer' | 'admin' | 'tracker';
 
-// Map the URL path to a view: "/admin" -> admin, everything else -> customer
-const getViewFromPath = (): View =>
-  window.location.pathname.startsWith('/admin') ? 'admin' : 'customer';
+// Map the URL path to a view:
+// "/admin" -> admin, "/customer" -> customer, everything else -> customer
+const getViewFromPath = (): View => {
+  if (window.location.pathname.startsWith('/admin')) return 'admin';
+  if (window.location.pathname.startsWith('/customer')) return 'customer';
+  return 'customer';
+};
 
 export default function App() {
   const { user, isAuthenticated, login, logout, role } = useAuth();
 
-  // Keep the view in sync when the user uses the browser back/forward buttons
-  useEffect(() => {
-    const onPopState = () => {
-      const detectedView = getViewFromPath();
-      navigate(detectedView);
-    };
-    window.addEventListener('popstate', onPopState);
-    return () => window.removeEventListener('popstate', onPopState);
-  }, []);
+  // Current view state (customer or admin)
+  const [activeView, setActiveView] = useState<View>(getViewFromPath());
 
-  // Navigate between customer ("/") and admin ("/admin")
-  const navigate = (view: View) => {
-    const path = view === 'admin' ? '/admin' : '/';
-    if (window.location.pathname !== path) {
-      window.history.pushState({}, '', path);
-    }
-    setActiveView(view);
-  };
-
-  // Handle admin login from AdminLogin component
-  const handleAdminLogin = (success: boolean) => {
-    if (success) {
-      // User is already logged in via useAuth
-    }
-  };
-
-  // Handle admin logout
-  const handleAdminLogout = () => {
-    logout();
-    navigate('customer');
-  };
   const [categories] = useState<Category[]>([
     'All',
     'Espresso & Coffee',
@@ -62,6 +37,8 @@ export default function App() {
   ]);
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
   const [searchQuery, setSearchQuery] = useState('');
+  // Admin login panel (embedded in the customer view, right side)
+  const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
 
   // Cart State
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -72,6 +49,9 @@ export default function App() {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isTrackerOpen, setIsTrackerOpen] = useState(false);
   const [activeTrackOrder, setActiveTrackOrder] = useState<Order | null>(null);
+
+  // Products State
+  const [products, setProducts] = useState<Product[]>([]);
 
   // Admin Data State
   const [orders, setOrders] = useState<Order[]>([]);
@@ -95,9 +75,10 @@ export default function App() {
     soundManager.setSoundEnabled(soundEnabled);
   }, [soundEnabled]);
 
-  // Navigate between customer ("/") and admin ("/admin") — completely separate localhosts
+  // Navigate between landing ("/"), customer ("/customer") and admin ("/admin")
   const navigate = (view: View) => {
-    const path = view === 'admin' ? '/admin' : '/';
+    const path =
+      view === 'admin' ? '/admin' : view === 'customer' ? '/customer' : '/';
     if (window.location.pathname !== path) {
       window.history.pushState({}, '', path);
     }
@@ -111,24 +92,18 @@ export default function App() {
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
 
-  // Admin login / logout (personal account)
+  // Admin login / logout (via AuthProvider)
   const handleAdminLogin = (success: boolean) => {
-    if (!success) return;
-    setIsAdminAuthenticated(true);
-    try {
-      window.localStorage.setItem('avenue_admin_auth', '1');
-    } catch {
-      /* ignore */
+    if (success) {
+      login('admin', 'admin123');
+      navigate('admin');
     }
   };
 
   const handleAdminLogout = () => {
-    setIsAdminAuthenticated(false);
-    try {
-      window.localStorage.removeItem('avenue_admin_auth');
-    } catch {
-      /* ignore */
-    }
+    logout();
+    setIsAdminLoginOpen(false);
+    navigate('customer');
   };
 
   // Initial Fetch Data
@@ -332,7 +307,8 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased selection:bg-amber-500 selection:text-slate-950">
       
-      {/* Header Navigation */}
+      {/* Header Navigation (hidden on the landing page) */}
+      {activeView !== 'landing' && (
       <Header
         activeView={activeView}
         setActiveView={navigate}
@@ -343,16 +319,36 @@ export default function App() {
         soundEnabled={soundEnabled}
         setSoundEnabled={setSoundEnabled}
         onOpenTracker={() => setIsTrackerOpen(true)}
+        onOpenAdminLogin={() => setIsAdminLoginOpen(true)}
         onLogout={handleAdminLogout}
         user={user}
         role={role}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
+      )}
 
       {/* Main Content Area */}
       <main>
-        {activeView === 'customer' && (
+        {activeView === 'admin' && isAuthenticated && role === 'admin' ? (
+          <AdminDashboard
+            orders={orders}
+            products={products}
+            categories={categories}
+            notifications={notifications}
+            stats={stats}
+            unreadCount={unreadCount}
+            soundEnabled={soundEnabled}
+            setSoundEnabled={setSoundEnabled}
+            onUpdateOrderStatus={handleUpdateOrderStatus}
+            onAddProduct={handleAddProduct}
+            onUpdateProduct={handleUpdateProduct}
+            onDeleteProduct={handleDeleteProduct}
+            onDeleteOrder={handleDeleteOrder}
+            onDeleteNotification={handleDeleteNotification}
+            onMarkNotificationsRead={handleMarkNotificationsRead}
+          />
+        ) : (
           <CustomerView
             products={products}
             categories={categories}
@@ -361,31 +357,10 @@ export default function App() {
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             onAddToCart={handleAddToCart}
+            adminLoginOpen={activeView === 'admin' || isAdminLoginOpen}
+            setAdminLoginOpen={setIsAdminLoginOpen}
+            onAdminLogin={handleAdminLogin}
           />
-        )}
-
-        {activeView === 'admin' && (
-          isAuthenticated && role === 'admin' ? (
-            <AdminDashboard
-              orders={orders}
-              products={products}
-              categories={categories}
-              notifications={notifications}
-              stats={stats}
-              unreadCount={unreadCount}
-              soundEnabled={soundEnabled}
-              setSoundEnabled={setSoundEnabled}
-              onUpdateOrderStatus={handleUpdateOrderStatus}
-              onAddProduct={handleAddProduct}
-              onUpdateProduct={handleUpdateProduct}
-              onDeleteProduct={handleDeleteProduct}
-              onDeleteOrder={handleDeleteOrder}
-              onDeleteNotification={handleDeleteNotification}
-              onMarkNotificationsRead={handleMarkNotificationsRead}
-            />
-          ) : (
-            <AdminLogin onLogin={handleAdminLogin} />
-          )
         )}
       </main>
 

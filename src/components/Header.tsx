@@ -1,10 +1,10 @@
 import React from 'react';
 import { ShoppingBag, ShieldCheck, Search, Bell, Volume2, VolumeX, Coffee, Clock, LogOut } from 'lucide-react';
-import { CartItem, AdminNotification } from '../types';
+import { CartItem, AdminNotification, UserRole } from '../types';
 
 interface HeaderProps {
-  activeView: 'customer' | 'admin' | 'tracker';
-  setActiveView: (view: 'customer' | 'admin' | 'tracker') => void;
+  activeView: 'landing' | 'customer' | 'admin' | 'tracker';
+  setActiveView: (view: 'landing' | 'customer' | 'admin' | 'tracker') => void;
   cartItems: CartItem[];
   setIsCartOpen: (open: boolean) => void;
   notifications: AdminNotification[];
@@ -12,6 +12,7 @@ interface HeaderProps {
   soundEnabled: boolean;
   setSoundEnabled: (enabled: boolean) => void;
   onOpenTracker: () => void;
+  onOpenAdminLogin: () => void;
   onLogout: () => void;
   user: { id: string; name: string; email: string; role: UserRole } | null;
   role: UserRole | null;
@@ -29,6 +30,7 @@ export const Header: React.FC<HeaderProps> = ({
   soundEnabled,
   setSoundEnabled,
   onOpenTracker,
+  onOpenAdminLogin,
   onLogout,
   user,
   role,
@@ -138,6 +140,16 @@ export const Header: React.FC<HeaderProps> = ({
                 <span className="hidden sm:inline">Track Order</span>
               </button>
 
+              {/* Admin Login Trigger */}
+              <button
+                onClick={() => (role === 'admin' ? setActiveView('admin') : onOpenAdminLogin())}
+                title="Admin Login"
+                className="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700/50 transition-all flex items-center gap-1.5 text-xs font-medium"
+              >
+                <ShieldCheck className="w-4 h-4 text-indigo-400" />
+                <span className="hidden sm:inline">Admin</span>
+              </button>
+
               {/* Audio Toggle */}
               <button
                 onClick={() => setSoundEnabled(!soundEnabled)}
@@ -151,8 +163,8 @@ export const Header: React.FC<HeaderProps> = ({
                 {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
               </button>
 
-              {/* User Display & Logout */}
-              {role === 'admin' ? (
+              {/* User Display & Logout (admin only) */}
+              {role === 'admin' && (
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-xs">
                     {user?.name?.charAt(0) || 'A'}
@@ -165,14 +177,6 @@ export const Header: React.FC<HeaderProps> = ({
                   >
                     <LogOut className="w-3.5 h-3.5" />
                   </button>
-                </div>
-              ) : (
-                /* Customer display */
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-slate-950 font-bold text-xs">
-                    {user?.name?.charAt(0) || 'C'}
-                  </div>
-                  <span className="text-slate-300 text-sm">Customer</span>
                 </div>
               )}
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Flame, Clock, Plus, Minus, Check, Star, Info, Coffee } from 'lucide-react';
+import { Search, Flame, Clock, Plus, Minus, Check, Star, Info, Coffee, ShieldCheck, Lock, User, Eye, EyeOff, LogIn, X } from 'lucide-react';
 import { Category, Product, CartItem } from '../types';
 import { formatPeso } from '../utils/format';
 
@@ -11,6 +11,9 @@ interface CustomerViewProps {
   searchQuery: string;
   setSearchQuery: (q: string) => void;
   onAddToCart: (product: Product, quantity: number, notes?: string) => void;
+  adminLoginOpen: boolean;
+  setAdminLoginOpen: (open: boolean) => void;
+  onAdminLogin: (success: boolean) => void;
 }
 
 export const CustomerView: React.FC<CustomerViewProps> = ({
@@ -20,12 +23,35 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
   setSelectedCategory,
   searchQuery,
   setSearchQuery,
-  onAddToCart
+  onAddToCart,
+  adminLoginOpen,
+  setAdminLoginOpen,
+  onAdminLogin
 }) => {
   const [selectedProductModal, setSelectedProductModal] = useState<Product | null>(null);
   const [modalQuantity, setModalQuantity] = useState<number>(1);
   const [modalNotes, setModalNotes] = useState<string>('');
   const [addedAnimationId, setAddedAnimationId] = useState<string | null>(null);
+
+  // Admin login form state (embedded panel on the right side)
+  const [adminUser, setAdminUser] = useState('');
+  const [adminPass, setAdminPass] = useState('');
+  const [adminShowPass, setAdminShowPass] = useState(false);
+  const [adminError, setAdminError] = useState('');
+
+  const handleAdminSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdminError('');
+    if (!adminUser.trim() || !adminPass.trim()) {
+      setAdminError('Please enter both your admin username and password.');
+      return;
+    }
+    if (adminUser.trim() === 'admin' && adminPass === 'admin123') {
+      onAdminLogin(true);
+    } else {
+      setAdminError('Invalid admin credentials. Please try again.');
+    }
+  };
 
   // Filter products
   const filteredProducts = products.filter((product) => {
@@ -288,6 +314,86 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
           </div>
         )}
       </div>
+
+      {/* Admin Login Panel (right side) */}
+      {adminLoginOpen && (
+        <div className="fixed top-20 right-4 z-50 w-full max-w-sm">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+            {/* Header */}
+            <div className="p-5 bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/40 border-b border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-600/30">
+                  <ShieldCheck className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-black text-white">Admin Login</h2>
+                  <p className="text-[10px] text-slate-400">Avenue Café Dashboard</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setAdminLoginOpen(false)}
+                title="Close"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-700/50 transition-all"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleAdminSubmit} className="p-5 space-y-4">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5 text-amber-400" /> Admin Username
+                </label>
+                <input
+                  type="text"
+                  value={adminUser}
+                  onChange={(e) => setAdminUser(e.target.value)}
+                  placeholder="Enter admin username"
+                  autoComplete="username"
+                  className="w-full bg-slate-950 text-slate-200 placeholder-slate-500 text-sm px-3.5 py-2.5 rounded-xl border border-slate-700 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1.5 flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5 text-amber-400" /> Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={adminShowPass ? 'text' : 'password'}
+                    value={adminPass}
+                    onChange={(e) => setAdminPass(e.target.value)}
+                    placeholder="Enter admin password"
+                    autoComplete="current-password"
+                    className="w-full bg-slate-950 text-slate-200 placeholder-slate-500 text-sm px-3.5 py-2.5 pr-11 rounded-xl border border-slate-700 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setAdminShowPass(!adminShowPass)}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300"
+                  >
+                    {adminShowPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {adminError && (
+                <p className="text-[11px] font-medium text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+                  {adminError}
+                </p>
+              )}
+
+              <button
+                type="submit"
+                className="w-full py-3 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2"
+              >
+                <LogIn className="w-4 h-4" /> Sign In to Admin Dashboard
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Product Detail Modal */}
       {selectedProductModal && (
