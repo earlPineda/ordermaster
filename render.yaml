@@ -1,27 +1,42 @@
-# Render.com free hosting configuration for Avenue Café.
-# Free tier = Free Web Service (512MB RAM, sleeps after 15 min idle).
+# Render.com blueprint for Matcha Avenue Cafe (Express + Vite + React).
+# Free tier = Free Web Service (512 MB RAM, sleeps after ~15 minutes idle).
 #
-# After this repo is on GitHub, deploy in 2 clicks:
-#   1) New -> Web Service -> connect your GitHub repo
-#   2) Render auto-detects Node (or uses this file) -> Deploy.
+# Deploy from GitHub in 2 clicks:
+#   1) Render Dashboard -> "New +" -> "Blueprint" -> connect earlPineda/ordermaster
+#      (Render reads this file), or "New +" -> "Web Service" to set it up manually.
+#   2) Add the optional secrets below under Settings -> Environment, then Deploy.
 #
-# Environment variables that need to be added in the Render Dashboard
-# under Settings -> Environment -> Environment Variables / Secrets
-# (never commit a real .env — it is gitignored):
+# PORT is injected by Render automatically and server.ts binds exactly that port.
+# It only falls back to the next free port when PORT is not provided, which keeps
+# local runs working when port 3000 is already taken.
 #
-#   GEMINI_API_KEY   Your Google Gemini API key (used by the server-side AI feature).
-#
-# NODE_ENV is pinned to "production" below so the Express server serves
-# the built static frontend from /dist instead of mounting Vite middleware.
+# Secret values are entered in the Render Dashboard (sync: false means "do not
+# store a value in this file"). Every one of them is optional:
+#   GEMINI_API_KEY            Google Gemini key for the AI assistant + Meta AI replies.
+#   GOOGLE_MAPS_PLATFORM_KEY  Read at BUILD time by vite.config.ts and baked into the
+#                             client bundle for interactive Google Maps features.
+#   FB_PAGE_ACCESS_TOKEN      Facebook Page token used for Messenger auto-replies.
+#   FB_VERIFY_TOKEN           Meta webhook verify token (has a default in code).
 services:
   - type: web
-    name: avenue-cafe
+    name: matcha-avenue-cafe
     env: node
     plan: free
     nodeVersion: '20'
     autoDeploy: true
+    healthCheckPath: /api/health
     buildCommand: npm install --include=dev && npm run build
     startCommand: npm start
     envVars:
+      # NODE_ENV=production makes the Express server serve the built frontend from
+      # /dist instead of mounting the Vite development middleware.
       - key: NODE_ENV
         value: production
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GOOGLE_MAPS_PLATFORM_KEY
+        sync: false
+      - key: FB_PAGE_ACCESS_TOKEN
+        sync: false
+      - key: FB_VERIFY_TOKEN
+        sync: false
