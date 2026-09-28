@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
+import net from 'net';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import { INITIAL_PRODUCTS, INITIAL_ORDERS, INITIAL_NOTIFICATIONS, DEFAULT_STORE_SETTINGS } from './src/data/initialData.js';
@@ -7,7 +8,38 @@ import { generateSupabaseDump } from './src/data/supabaseSchema.js';
 import { Product, Order, AdminNotification, OrderStatus, DashboardStats, CustomerProfile, StoreSettings, SalesReportSnapshot, OrderItemRecord } from './src/types.js';
 
 const app = express();
-const PORT = 3000;
+const DEFAULT_PORT = 3000;
+// Hosting platforms (e.g. Render) inject PORT - honour it so the service binds
+// the port the platform proxies to. HOST is overridable for local testing.
+const PORT = Number(process.env.PORT) || DEFAULT_PORT;
+const HOST = process.env.HOST || '0.0.0.0';
+
+/** Resolves to true when the given port can be bound on HOST. */
+function isPortFree(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const tester = net.createServer();
+    tester.once('error', () => resolve(false));
+    tester.once('listening', () => tester.close(() => resolve(true)));
+    tester.listen(port, HOST);
+  });
+}
+
+/**
+ * Uses the preferred port, or the next free one when it is already taken.
+ * An explicitly provided PORT (production platforms) is always respected
+ * exactly, because those platforms proxy traffic to that specific port.
+ */
+async function resolvePort(preferred: number): Promise<number> {
+  if (process.env.PORT) return preferred;
+  if (await isPortFree(preferred)) return preferred;
+  for (let port = preferred + 1; port <= preferred + 20; port++) {
+    if (await isPortFree(port)) {
+      console.warn(`[server] Port ${preferred} is already in use - using ${port} instead.`);
+      return port;
+    }
+  }
+  return preferred;
+}
 
 app.use(express.json());
 
@@ -2148,8 +2180,22 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Matcha Avenue Cafe server running on http://0.0.0.0:${PORT}`);
+  const port = await resolvePort(PORT);
+
+  const server = app.listen(port, HOST, () => {
+    console.log(`Matcha Avenue Cafe server running on http://${HOST}:${port}`);
+    console.log(`  Customer view : http://localhost:${port}/`);
+    console.log(`  Admin console : http://localhost:${port}/admin`);
+    console.log(`  Health check  : http://localhost:${port}/api/health`);
+  });
+
+  server.on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`[server] Port ${port} is already in use. Set PORT to a free port and retry.`);
+    } else {
+      console.error('[server] Server error:', err.message);
+    }
+    process.exit(1);
   });
 }
 
