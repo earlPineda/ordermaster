@@ -1,6 +1,6 @@
 {
-  "name": "Avenue Café",
-  "description": "Avenue Café online ordering system featuring artisan coffee, espresso, fresh pastries, gourmet paninis, live order tracking, admin console, and MySQL script exporter.",
-  "requestFramePermissions": [],
+  "name": "Matcha Avenue Cafe",
+  "description": "Matcha Avenue Cafe online ordering system featuring ceremonial Japanese matcha, specialty coffee, fresh bakery, interactive Google Maps delivery picker, role-based Customer & Admin login, live order tracking with cancellation & receipt confirmation, real-time audio chiming & faded order alerts, and automated Facebook Messenger ordering.",
+  "requestFramePermissions": ["geolocation"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

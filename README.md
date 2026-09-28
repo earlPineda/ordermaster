@@ -1,4 +1,4 @@
-# Avenue Café - Online Coffee & Food Ordering System
+# Avenue Café - Full Stack Online Coffee & Food Ordering System
 
 An artisan café online ordering web application built with **React**, **TypeScript**, **Tailwind CSS**, and an **Express REST API** backend server. Features live order tracking, GCash & Maya payment validation, administrative console with real-time audio notifications, and a MySQL/phpMyAdmin database script generator.
 
@@ -55,12 +55,13 @@ Vite server running on http://localhost:3000
 ---
 
 ### Step 5: Open in Browser
-The customer and admin areas are separated into their own personal localhost URLs:
+Open your web browser and navigate to:
+```text
+http://localhost:3000
+```
 
-- **Customer View** → `http://localhost:3000/` — browse the menu, customize notes, pay via GCash / Maya / Cash, and track order status in real-time. *(No admin access here.)*
-- **Admin Dashboard** → `http://localhost:3000/admin` — sign in with the **personal admin account** (username: `admin`, password: `admin123`) to manage products, view incoming orders, update order status, and inspect verified GCash / Maya payment reference numbers. *(No customer view here.)*
-
-> Note: If port 3000 is busy (e.g. occupied by an unrelated service), the server automatically launches on the next available port and prints the correct address.
+- **Customer View**: Browse artisan coffee, pastries, paninis, customize notes, pay via GCash / Maya / Cash, and track order status in real-time.
+- **Admin Dashboard**: Click **"Admin Dashboard"** in the top navigation bar to manage products, view incoming orders, update order status, and inspect verified GCash / Maya payment reference numbers.
 
 ---
 
@@ -100,23 +101,20 @@ To connect or import database records into MySQL:
 
 ```text
 ├── server.ts              # Express API Server + Vite Dev Middleware
-├── start-dev.ps1          # Helper script to launch the server (handles special chars in path)
 ├── src/
 │   ├── components/
 │   │   ├── AdminDashboard.tsx  # Admin order & menu management console
-│   │   ├── AdminLogin.tsx      # Personal admin account login screen
 │   │   ├── CustomerView.tsx    # Customer menu, cart & order status tracker
 │   │   ├── CheckoutModal.tsx   # Checkout modal with GCash/Maya validation
-│   │   ├── Header.tsx          # Role-based header (Customer "/" vs Admin "/admin")
-│   │   ├── NotificationToast.tsx
-│   │   └── OrderTrackerModal.tsx
+│   │   ├── Header.tsx          # Navigation header & VS Code Guide button
+│   │   └── VSCodeGuideModal.tsx# In-app interactive VS Code setup modal
 │   ├── data/
 │   │   └── initialData.ts  # Initial menu products, orders, and MySQL dump
 │   ├── types.ts            # TypeScript interfaces & types
 │   ├── utils/
 │   │   └── format.ts       # Peso (₱) formatting & e-wallet validators
-│   ├── App.tsx             # Main React app (routes "/" customer, "/admin" admin)
+│   ├── App.tsx             # Main React application component
 │   └── main.tsx            # React entry point
 ├── package.json            # Node.js dependencies and scripts
-└── README.md               # Setup guide and documentation
+└── README.md               # VS Code setup guide and documentation
 ```

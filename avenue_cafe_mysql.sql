@@ -80,7 +80,8 @@ CREATE TABLE IF NOT EXISTS orders (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   deleted TINYINT(1) NOT NULL DEFAULT 0,
-  cancelled_by VARCHAR(20)
+    cancelled_by VARCHAR(20),
+  pickup_time VARCHAR(30)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ---------------------------------------------------
