@@ -16,7 +16,6 @@ import {
   Check,
   Smartphone,
   Navigation,
-  Compass,
   Store,
   Truck,
   UtensilsCrossed,
@@ -56,8 +55,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     phone: '',
     email: '',
     address: '',
-    landmark: '',
-    unitFloor: '',
     coordinates: { lat: 14.5515, lng: 121.0510, label: 'BGC Taguig' },
     notes: '',
     ewalletNumber: '',
@@ -201,8 +198,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         phone: customer.phone.trim(),
         email: customer.email?.trim() || undefined,
         address: selectedDeliveryType === 'delivery' ? customer.address?.trim() : undefined,
-        landmark: selectedDeliveryType === 'delivery' ? customer.landmark?.trim() : undefined,
-        unitFloor: selectedDeliveryType === 'delivery' ? customer.unitFloor?.trim() : undefined,
         coordinates: selectedDeliveryType === 'delivery' ? customer.coordinates : undefined,
         notes: customer.notes?.trim() || undefined,
         tableNumber: selectedDeliveryType === 'dine_in' ? tableNumber.trim() : undefined,
@@ -506,7 +501,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3">
               <div>
                 <label className="block text-xs font-medium text-stone-700 mb-1 flex items-center justify-between">
                   <span>Email Address</span>
@@ -525,28 +520,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   />
                 </div>
               </div>
-
-              {selectedDeliveryType === 'delivery' && (
-                <div>
-                  <label className="block text-xs font-medium text-stone-700 mb-1">Unit / Floor / Building</label>
-                  <div className="relative">
-                    <MapPin className="w-3.5 h-3.5 absolute left-3 top-3 text-stone-400" />
-                    <input
-                      type="text"
-                      placeholder="e.g. Unit 14B, Tower 2"
-                      value={customer.unitFloor || ''}
-                      onChange={(e) => setCustomer({ ...customer, unitFloor: e.target.value })}
-                      className="w-full bg-white text-xs text-stone-900 placeholder-stone-400 pl-8 pr-3 py-2 rounded-lg border border-stone-200 focus:outline-none focus:border-amber-600 transition-colors"
-                    />
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Delivery Address & Map (Only for Door Delivery) */}
             {selectedDeliveryType === 'delivery' && (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-stone-700 mb-1">Delivery Street Address *</label>
                     <div className="relative">
@@ -557,20 +536,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                         placeholder="House/Building No., Street Name, City"
                         value={customer.address || ''}
                         onChange={(e) => setCustomer({ ...customer, address: e.target.value })}
-                        className="w-full bg-white text-xs text-stone-900 placeholder-stone-400 pl-8 pr-3 py-2 rounded-lg border border-stone-200 focus:outline-none focus:border-amber-600 transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-stone-700 mb-1">Landmark / Notes</label>
-                    <div className="relative">
-                      <Compass className="w-3.5 h-3.5 absolute left-3 top-3 text-stone-400" />
-                      <input
-                        type="text"
-                        placeholder="e.g. Beside High Street fountain"
-                        value={customer.landmark || ''}
-                        onChange={(e) => setCustomer({ ...customer, landmark: e.target.value })}
                         className="w-full bg-white text-xs text-stone-900 placeholder-stone-400 pl-8 pr-3 py-2 rounded-lg border border-stone-200 focus:outline-none focus:border-amber-600 transition-colors"
                       />
                     </div>
