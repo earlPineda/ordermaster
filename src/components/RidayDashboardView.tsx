@@ -62,6 +62,14 @@ export const RidayDashboardView: React.FC<RidayDashboardViewProps> = ({
   const [selectedPeriod, setSelectedPeriod] = useState<'Monthly' | 'Weekly' | 'Daily'>('Monthly');
   const [activeBarIndex, setActiveBarIndex] = useState<number | null>(5); // Default to June/July
 
+  /**
+   * Total Orders KPI - counted exactly like the server's /api/admin/stats:
+   * cancelled orders do not count, and deleted orders are already gone from the
+   * store entirely, so only valid (active or delivered) orders are included.
+   */
+  const totalOrdersCount =
+    stats.totalOrders > 0 ? stats.totalOrders : orders.filter((o) => o.status !== 'cancelled').length;
+
   // On-screen Meta AI Facebook Messenger live order simulation state
   const [testOrderInput, setTestOrderInput] = useState(
     'Order 2 Iced Uji Cream Matcha with oat milk and 1 Butter Croissant. Deliver to Two Serendra BGC. Phone: 09178889999. COD.'
@@ -461,7 +469,7 @@ export const RidayDashboardView: React.FC<RidayDashboardViewProps> = ({
             <div>
               <span className="text-sm font-semibold text-stone-600 block mb-1">Total Orders</span>
               <div className="text-3xl sm:text-4xl font-extrabold text-stone-900 tracking-tight font-sans">
-                {orders.length > 0 ? Math.max(415, orders.length) : 415}
+                {totalOrdersCount}
               </div>
             </div>
             {renderDonut(
@@ -706,7 +714,7 @@ export const RidayDashboardView: React.FC<RidayDashboardViewProps> = ({
 
           <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
             <span className="text-stone-700 font-medium">
-              {orders.length > 0 ? `${orders.length} total orders` : '6 total orders'}
+              {`${totalOrdersCount} total orders`}
             </span>
             <button
               type="button"

@@ -59,12 +59,18 @@ export const CustomerManagementView: React.FC<CustomerManagementViewProps> = ({
   const customerMap = new Map<string, CustomerSummary>();
 
   orders.forEach((order) => {
+    // Cancelled orders are not real sales: they must not raise the customer's
+    // order count, spending or loyalty tier. Deleted orders are already absent
+    // from this list because the API removes them from the store entirely.
+    const isCancelled = order.status === 'cancelled';
     const key = order.customer.phone || order.customer.name;
     const existing = customerMap.get(key);
 
     if (existing) {
-      existing.totalOrders += 1;
-      existing.totalSpent += order.total;
+      if (!isCancelled) {
+        existing.totalOrders += 1;
+        existing.totalSpent += order.total;
+      }
       if (new Date(order.createdAt) > new Date(existing.lastOrderDate)) {
         existing.lastOrderDate = order.createdAt;
         existing.latestOrder = order;
@@ -76,16 +82,18 @@ export const CustomerManagementView: React.FC<CustomerManagementViewProps> = ({
       }
     } else {
       let tier: 'Gold VIP' | 'Silver Barista' | 'Standard Guest' = 'Standard Guest';
-      if (order.total >= 2000) tier = 'Gold VIP';
-      else if (order.total >= 800) tier = 'Silver Barista';
+      if (!isCancelled) {
+        if (order.total >= 2000) tier = 'Gold VIP';
+        else if (order.total >= 800) tier = 'Silver Barista';
+      }
 
       customerMap.set(key, {
         id: key,
         name: order.customer.name,
         phone: order.customer.phone,
         address: order.customer.address,
-        totalOrders: 1,
-        totalSpent: order.total,
+        totalOrders: isCancelled ? 0 : 1,
+        totalSpent: isCancelled ? 0 : order.total,
         lastOrderDate: order.createdAt,
         latestOrder: order,
         tier
