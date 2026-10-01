@@ -385,7 +385,7 @@ export const StoreCustomizerPanel: React.FC<StoreCustomizerPanelProps> = ({
               type="text"
               value={formData.heroBadgeText}
               onChange={(e) => setFormData({ ...formData, heroBadgeText: e.target.value })}
-              placeholder="e.g. Avenue Café Flagship • BGC High Street, Taguig City"
+              placeholder="e.g. Avenue Café Flagship • Crimson Street, Navarro, General Trias"
               className="w-full bg-stone-50 text-xs text-stone-900 px-3 py-2 rounded-lg border border-stone-200 focus:outline-none focus:border-amber-600 focus:bg-white"
             />
           </div>
@@ -460,7 +460,7 @@ export const StoreCustomizerPanel: React.FC<StoreCustomizerPanelProps> = ({
                 type="text"
                 value={formData.storeAddress}
                 onChange={(e) => setFormData({ ...formData, storeAddress: e.target.value })}
-                placeholder="BGC High Street, Taguig City"
+                placeholder="Crimson Street, Navarro, General Trias"
                 className="w-full bg-stone-50 text-xs text-stone-900 px-3 py-1.5 rounded-lg border border-stone-200 focus:outline-none focus:border-amber-600 focus:bg-white"
               />
             </div>

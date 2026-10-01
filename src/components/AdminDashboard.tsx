@@ -182,7 +182,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const [productForm, setProductForm] = useState({
     name: '',
-    category: 'Espresso & Coffee' as Category,
+    category: 'Matcha Classics' as Category,
     price: 160.00,
     salePrice: 135.00,
     isOnSale: false,
@@ -235,7 +235,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setImageUploadTab('file');
     setProductForm({
       name: '',
-      category: (categories.find((c) => c !== 'All') || 'Espresso & Coffee') as Category,
+      category: (categories.find((c) => c !== 'All') || 'Matcha Classics') as Category,
       price: 165.00,
       salePrice: 140.00,
       isOnSale: false,
@@ -2322,7 +2322,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Spanish Latte, Chocolate Croissant"
+                  placeholder="e.g. Matcha Strawberry, Matcha Mango"
                   value={productForm.name}
                   onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
                   className="w-full bg-stone-50 text-stone-900 border border-stone-200 rounded-lg p-2 font-medium text-xs focus:outline-none focus:border-amber-600 focus:bg-white"

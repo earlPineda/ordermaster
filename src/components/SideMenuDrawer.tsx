@@ -260,7 +260,7 @@ export const SideMenuDrawer: React.FC<SideMenuDrawerProps> = ({
               <div className="flex items-start gap-2">
                 <MapPin className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
                 <span className="leading-tight text-[11px] text-stone-700">
-                  {storeSettings?.storeAddress || '123 Artisan Ave, Bonifacio Global City, Taguig'}
+                  {storeSettings?.storeAddress || 'Crimson Street, Navarro, General Trias'}
                 </span>
               </div>
 

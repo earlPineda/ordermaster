@@ -101,60 +101,6 @@ export const CustomerManagementView: React.FC<CustomerManagementViewProps> = ({
     }
   });
 
-  // Sample customers with rich, realistic items so clicking items is 100% full and never cut
-  if (customerMap.size === 0) {
-    const sampleNames = ['Johne Doe', 'Amla Sharma', 'Josef Miller', 'Rima Hasan'];
-    sampleNames.forEach((name, i) => {
-      customerMap.set(`sample-${i}`, {
-        id: `sample-${i}`,
-        name,
-        phone: `+63 917 555 010${i}`,
-        address: 'Downtown Avenue, Metro Manila',
-        totalOrders: 3 + i * 2,
-        totalSpent: 450 + i * 320,
-        lastOrderDate: new Date().toISOString(),
-        latestOrder: {
-          id: `ord-sample-${i}`,
-          orderNumber: `ORD-${1000 + i}`,
-          customer: {
-            name,
-            phone: `+63 917 555 010${i}`,
-            address: 'Downtown Avenue, Metro Manila',
-            notes: 'Please ring bell upon arrival'
-          },
-          items: [
-            {
-              productId: `prod-sample-${i}-1`,
-              productName: i % 2 === 0 ? 'Spanish Latte (Signature Cold Brew)' : 'Iced Caramel Macchiato',
-              unitPrice: 165,
-              quantity: 2,
-              subtotal: 330,
-              notes: 'Barista Oat Milk, 50% Sweetness, Extra Shot'
-            },
-            {
-              productId: `prod-sample-${i}-2`,
-              productName: i % 2 === 0 ? 'Golden Butter Croissant' : 'Blueberry Cream Danish',
-              unitPrice: 120,
-              quantity: 1,
-              subtotal: 120,
-              notes: 'Warm oven toasted'
-            }
-          ],
-          deliveryType: 'delivery',
-          paymentMethod: 'gcash',
-          subtotal: 450,
-          tax: 0,
-          deliveryFee: 50,
-          total: 500,
-          status: 'delivered',
-          createdAt: new Date(Date.now() - (i + 1) * 3600000).toISOString(),
-          updatedAt: new Date(Date.now() - i * 3600000).toISOString()
-        },
-        tier: i === 0 ? 'Gold VIP' : i === 1 ? 'Silver Barista' : 'Standard Guest'
-      });
-    });
-  }
-
   const customerList = Array.from(customerMap.values());
 
   const filteredCustomers = customerList.filter((c) => {

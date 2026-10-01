@@ -80,7 +80,7 @@ export const MetaAiMessengerPanel: React.FC<MetaAiMessengerPanelProps> = ({
   const [simGuestName, setSimGuestName] = useState('Maria Santos');
   const [simSenderId, setSimSenderId] = useState('fb-user-maria');
   const [simMessage, setSimMessage] = useState(
-    'Order 2 Iced Uji Cream Matcha with oat milk and 1 Butter Croissant. Deliver to Unit 12B Two Serendra BGC Taguig. Phone: 09178889999. Cash on delivery.'
+    'Order 2 Matcha Strawberry with oat milk and 1 Matcha Mango. Deliver to Unit 12B Two Serendra BGC Taguig. Phone: 09178889999. Cash on delivery.'
   );
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulationResult, setSimulationResult] = useState<{
@@ -276,14 +276,14 @@ export const MetaAiMessengerPanel: React.FC<MetaAiMessengerPanelProps> = ({
       tag: 'Full Order + Instant Receipt',
       sender: 'Maria Santos',
       id: 'fb-maria-direct',
-      msg: 'Order 2 Spanish Latte with oat milk and 1 Butter Croissant. Deliver to Unit 12B Two Serendra BGC Taguig. Phone: 09178889999. Cash on delivery.'
+      msg: 'Order 2 Matcha Strawberry with oat milk and 1 Matcha Mango. Deliver to Unit 12B Two Serendra BGC Taguig. Phone: 09178889999. Cash on delivery.'
     },
     {
       title: 'Step 1: Order Items Only',
       tag: 'Full Order Details Returned',
       sender: 'Juan Carlos',
       id: 'fb-juan-stepped',
-      msg: 'Pa-order po ng dalawang spanish latte and 1 artisan butter croissant'
+      msg: 'Pa-order po ng dalawang Matcha Strawberry at 1 Matcha Mango'
     },
     {
       title: 'Step 2: Deliver & Confirm',
@@ -490,7 +490,7 @@ export const MetaAiMessengerPanel: React.FC<MetaAiMessengerPanelProps> = ({
                 value={simMessage}
                 onChange={(e) => setSimMessage(e.target.value)}
                 className="w-full bg-stone-50 text-xs px-3 py-2.5 rounded-xl border border-stone-200 focus:outline-none focus:bg-white resize-none"
-                placeholder="Type customer request e.g. Order 2 Spanish Latte with oat milk, deliver to BGC, phone 09171234567, COD"
+                placeholder="Type customer request e.g. Order 2 Matcha Strawberry with oat milk, deliver to BGC, phone 09171234567, COD"
               />
             </div>
 

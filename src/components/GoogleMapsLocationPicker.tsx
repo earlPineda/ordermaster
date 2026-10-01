@@ -20,11 +20,11 @@ import {
 } from 'lucide-react';
 import { CustomerCoordinates } from '../types';
 
-// Default Matcha Avenue Cafe HQ Location (Bonifacio Global City, Taguig)
+// Default Matcha Avenue Cafe HQ Location (Navarro, General Trias, Cavite)
 export const AVENUE_CAFE_COORDINATES: CustomerCoordinates = {
-  lat: 14.5515,
-  lng: 121.0510,
-  label: 'Matcha Avenue Cafe Flagship Store (BGC High Street, Taguig City)'
+  lat: 14.3857,
+  lng: 120.8992,
+  label: 'Matcha Avenue Cafe Flagship Store (Crimson Street, Navarro, General Trias)'
 };
 
 const POPULAR_LOCATIONS: Array<{ name: string; address: string; coords: CustomerCoordinates }> = [
@@ -62,9 +62,9 @@ const POPULAR_LOCATIONS: Array<{ name: string; address: string; coords: Customer
 
 /** Fallback delivery point used before the customer pins anything. */
 const DEFAULT_DELIVERY_COORDINATES: CustomerCoordinates = {
-  lat: 14.5515,
-  lng: 121.0510,
-  label: 'BGC High Street'
+  lat: 14.3857,
+  lng: 120.8992,
+  label: 'Navarro, General Trias'
 };
 
 interface GoogleMapsLocationPickerProps {
@@ -317,7 +317,7 @@ export const GoogleMapsLocationPicker: React.FC<GoogleMapsLocationPickerProps> =
             <span style="transform: rotate(45deg); font-size: 14px; font-weight: bold; color: white;">🍵</span>
           </div>
           <div style="background: rgba(0,0,0,0.85); color: #34d399; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 6px; margin-top: 4px; border: 1px solid rgba(16,185,129,0.4); white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.6);">
-            Matcha Avenue Cafe BGC
+            Matcha Avenue Cafe Navarro
           </div>
         </div>
       `,
@@ -331,7 +331,7 @@ export const GoogleMapsLocationPicker: React.FC<GoogleMapsLocationPickerProps> =
         icon: storeIcon
       })
         .addTo(map)
-        .bindPopup('<b>Matcha Avenue Cafe Flagship Store</b><br>BGC High Street, Taguig City');
+        .bindPopup('<b>Matcha Avenue Cafe Flagship Store</b><br>Crimson Street, Navarro, General Trias');
       storeMarkerRef.current = storeMarker;
 
       // Add Dashed Route Line

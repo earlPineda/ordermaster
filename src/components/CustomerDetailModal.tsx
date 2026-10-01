@@ -75,7 +75,7 @@ export const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
     }
   };
 
-  const coords = order.customer.coordinates || { lat: 14.5515, lng: 121.0510, label: order.customer.address || 'Delivery Point' };
+  const coords = order.customer.coordinates || { lat: 14.3857, lng: 120.8992, label: order.customer.address || 'Delivery Point' };
   const googleMapsDirectionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${AVENUE_CAFE_COORDINATES.lat},${AVENUE_CAFE_COORDINATES.lng}&destination=${coords.lat},${coords.lng}`;
 
   const hasItems = order.items && order.items.length > 0;

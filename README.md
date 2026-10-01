@@ -1,6 +1,6 @@
 # Matcha Avenue Cafe - Online Ordering System
 
-An artisan matcha, coffee and bakery ordering web app built with **React 19**, **TypeScript**, **Tailwind CSS 4** and an **Express REST API**. It ships a customer storefront, an embedded admin console, a Leaflet/Google delivery pin picker, live order tracking, loyalty & promotions management, Meta (Facebook Messenger) AI ordering, and SQL export for MySQL / Supabase.
+An artisan matcha (ceremonial Uji matcha, fruit blends & frozen frappes) ordering web app built with **React 19**, **TypeScript**, **Tailwind CSS 4** and an **Express REST API**. It ships a customer storefront, an embedded admin console, a Leaflet/Google delivery pin picker, live order tracking, loyalty & promotions management, Meta (Facebook Messenger) AI ordering, and SQL export for MySQL / Supabase.
 
 - **Customer storefront** -> `/`
 - **Admin console** -> `/admin`
@@ -120,6 +120,8 @@ https://matcha-avenue-cafe.onrender.com/admin   (admin console)
 | `NODE_ENV` | yes | `production` makes the server serve the built `dist/` instead of the Vite dev middleware (already set in `render.yaml`). |
 | `GEMINI_API_KEY` | optional | Google Gemini key for the AI ordering assistant and Meta AI replies. Without it those features fall back to scripted responses. |
 | `GOOGLE_MAPS_PLATFORM_KEY` | optional | Read at **build time** by `vite.config.ts` and baked into the client bundle, so changing it requires a rebuild. The delivery pin map works without it. |
+| `VITE_SUPABASE_URL` | optional | Supabase project URL (project ref `swpodakdlkeardfqvnrs` → `https://swpodakdlkeardfqvnrs.supabase.co`). |
+| `VITE_SUPABASE_ANON_KEY` | optional | Supabase anon/public API key. When set, the admin **Supabase** panel auto-targets this project. |
 | `FB_PAGE_ACCESS_TOKEN` | optional | Facebook Page token for Messenger auto-replies. Without it, webhook replies are simulated only. |
 | `FB_VERIFY_TOKEN` | optional | Meta webhook verify token (defaults to `matcha_avenue_meta_ai_secret_verify_token` in code). |
 

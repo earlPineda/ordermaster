@@ -55,7 +55,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     phone: '',
     email: '',
     address: '',
-    coordinates: { lat: 14.5515, lng: 121.0510, label: 'BGC Taguig' },
+    coordinates: { lat: 14.3857, lng: 120.8992, label: 'Navarro, General Trias' },
     notes: '',
     ewalletNumber: '',
     referenceNumber: '',
@@ -385,7 +385,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 <div>
                   <h4 className="text-xs font-bold text-stone-900">Matcha Avenue Cafe Flagship Branch</h4>
                   <p className="text-[11px] text-stone-500 mt-0.5">
-                    7th Ave & 28th St, Bonifacio High Street, BGC, Taguig City
+                    Crimson Street, Navarro, General Trias
                   </p>
                   <p className="text-[10px] text-stone-500 mt-1 flex items-center gap-1">
                     <Clock className="w-3 h-3 text-emerald-600" /> Open: 7:00 AM – 10:00 PM

@@ -36,12 +36,9 @@ CREATE TABLE categories (
 
 -- Seed Default Categories
 INSERT INTO categories (name, display_order) VALUES
-  ('Espresso & Coffee', 1),
-  ('Cold Brew & Frappes', 2),
-  ('Artisan Teas', 3),
-  ('Pastries & Bakery', 4),
-  ('Gourmet Paninis', 5),
-  ('Desserts', 6)
+  ('Matcha Classics', 1),
+  ('Matcha Fruit Series', 2),
+  ('Matcha Frappes', 3)
 ON CONFLICT (name) DO NOTHING;
 
 -- ------------------------------------------------------------------------------
@@ -69,12 +66,16 @@ CREATE TABLE products (
 -- Seed Products
 INSERT INTO products (id, name, category_name, price, sale_price, is_on_sale, is_featured, badge, description, image, available, is_popular, calories, prep_time_mins)
 VALUES
-  ('prod-1', 'Avenue Spanish Latte', 'Espresso & Coffee', 165.00, 145.00, true, true, 'Best Seller', 'Double shot espresso blend with velvety steamed milk and sweet condensed milk swirl.', NULL, true, true, 280, 4),
-  ('prod-2', 'Vanilla Bean Cold Brew', 'Cold Brew & Frappes', 175.00, 140.00, true, true, '20% OFF', '18-hour steep dark roast cold brew topped with house-made vanilla bean cold foam.', NULL, true, true, 190, 3),
-  ('prod-3', 'Iced Uji Cream Matcha', 'Artisan Teas', 185.00, NULL, false, true, 'Chef''s Special', 'Ceremonial grade Uji matcha whisked with oat milk and sweet cream cold foam.', NULL, true, true, 220, 5),
-  ('prod-4', 'Artisan Butter Croissant', 'Pastries & Bakery', 120.00, 99.00, true, true, 'Fresh Baked', 'Flaky, multi-layered French butter croissant freshly baked every morning.', NULL, true, true, 320, 2),
-  ('prod-5', 'Smoked Turkey & Pesto Panini', 'Gourmet Paninis', 260.00, NULL, false, false, 'Warm & Toasted', 'Smoked turkey breast, melted provolone, basil pesto, and sun-dried tomatoes on toasted sourdough.', NULL, true, true, 560, 8),
-  ('prod-6', 'Basque Burnt Cheesecake', 'Desserts', 195.00, 175.00, true, false, 'Popular', 'Caramelized top cheesecake with a silky, molten cream center.', NULL, true, false, 410, 2);
+  ('prod-1', 'Classic Uji Matcha Latte', 'Matcha Classics', 165.00, NULL, false, true, 'Best Seller', 'Ceremonial grade Uji matcha whisked with velvety steamed milk and a touch of sweetness.', NULL, true, true, 180, 4),
+  ('prod-2', 'Ceremonial Matcha Cold Foam', 'Matcha Classics', 175.00, NULL, false, true, 'House Special', 'Iced ceremonial matcha topped with barista sweet cream cold foam.', NULL, true, true, 160, 5),
+  ('prod-3', 'Matcha Strawberry', 'Matcha Fruit Series', 185.00, 160.00, true, true, 'Best Seller', 'Ceremonial matcha blended with fresh strawberry puree and creamy milk.', NULL, true, true, 220, 5),
+  ('prod-4', 'Matcha Mango', 'Matcha Fruit Series', 185.00, NULL, false, true, 'Chef''s Special', 'Ripe mango puree swirled into smooth ceremonial matcha and milk.', NULL, true, true, 210, 5),
+  ('prod-5', 'Matcha Blueberry', 'Matcha Fruit Series', 185.00, 160.00, true, false, 'Fresh Blend', 'Antioxidant-rich blueberry puree layered with ceremonial matcha.', NULL, true, true, 200, 5),
+  ('prod-6', 'Matcha Avocado', 'Matcha Fruit Series', 195.00, NULL, false, true, 'Creamy', 'Silky avocado blended with ceremonial matcha for a rich, creamy treat.', NULL, true, true, 260, 6),
+  ('prod-7', 'Matcha Peach', 'Matcha Fruit Series', 185.00, 155.00, true, false, 'Seasonal', 'Sweet summer peach puree folded into ceremonial matcha and milk.', NULL, true, false, 200, 5),
+  ('prod-8', 'Matcha Lychee', 'Matcha Fruit Series', 185.00, NULL, false, false, 'Refreshing', 'Fragrant lychee blended with ceremonial matcha over ice.', NULL, true, false, 190, 5),
+  ('prod-9', 'Matcha Strawberry Frappe', 'Matcha Frappes', 205.00, 175.00, true, false, 'Frozen', 'Frozen matcha-strawberry frappe topped with whipped cream.', NULL, true, true, 300, 6),
+  ('prod-10', 'Matcha Oreo Frappe', 'Matcha Frappes', 205.00, 175.00, true, false, 'Frozen', 'Frozen ceremonial matcha blended with crushed cookies and cream.', NULL, true, false, 320, 6);
 
 -- ------------------------------------------------------------------------------
 -- 5. ORDERS TABLE (Live Orders & Status Lifecycle)

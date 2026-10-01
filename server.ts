@@ -122,8 +122,8 @@ let metaAiWebhookLogs: MetaAiWebhookLog[] = [
     timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
     senderId: 'fb-user-99124',
     senderName: 'Maria Santos',
-    messageText: 'Hello! Do you have oat milk for your iced Spanish latte?',
-    replyText: 'Yes, Maria! We offer premium Barista-grade Oat Milk (+₱20) for our Iced Spanish Latte. Would you like to order one for delivery or store pickup?',
+    messageText: 'Hello! Do you have oat milk for your iced Matcha Strawberry?',
+    replyText: 'Yes, Maria! We offer premium Barista-grade Oat Milk (+₱20) for our iced Matcha Strawberry. Would you like to order one for delivery or store pickup?',
     status: 'replied'
   },
   {
@@ -285,10 +285,10 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
     name: user.name,
     email: user.email,
     phone: user.phone,
-    address: user.address || '7th Ave & 28th St, BGC High Street, Taguig',
+    address: user.address || 'Crimson Street, Navarro, General Trias',
     unitFloor: user.unitFloor,
     landmark: user.landmark,
-    coordinates: user.coordinates || { lat: 14.5515, lng: 121.0510, label: user.address || 'Metro Manila' },
+    coordinates: user.coordinates || { lat: 14.3857, lng: 120.8992, label: user.address || 'Metro Manila' },
     avatar: user.avatar,
     memberTier: user.memberTier || 'Standard'
   };
@@ -370,7 +370,7 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
     address: address || 'Metro Manila, Philippines',
     unitFloor: unitFloor || '',
     landmark: landmark || '',
-    coordinates: coordinates || { lat: 14.5515, lng: 121.0510, label: address || 'Metro Manila' },
+    coordinates: coordinates || { lat: 14.3857, lng: 120.8992, label: address || 'Metro Manila' },
     memberTier: 'Standard',
     provider: 'local',
     createdAt: new Date().toISOString()
@@ -422,8 +422,8 @@ app.post('/api/auth/social', (req: Request, res: Response) => {
         ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&h=200&q=80'
         : 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=200&h=200&q=80'),
       role: 'customer',
-      address: '7th Ave & 28th St, BGC, Taguig City',
-      coordinates: { lat: 14.5515, lng: 121.0510, label: 'BGC Taguig' },
+      address: 'Crimson Street, Navarro, General Trias',
+      coordinates: { lat: 14.3857, lng: 120.8992, label: 'Navarro, General Trias' },
       memberTier: 'Gold VIP',
       provider: socialProvider,
       createdAt: new Date().toISOString()
@@ -1209,7 +1209,7 @@ function generateFullShopMenuText(): string {
   }
 
   let text = `☕ ━━━━━━━━━━━━━━━━━━━━━━
-    AVENUE CAFÉ & ROASTERY
+    MATCHA AVENUE CAFE
       Official Store Menu
 ━━━━━━━━━━━━━━━━━━━━━━\n`;
 
@@ -1232,13 +1232,13 @@ function generateFullShopMenuText(): string {
 
 🛵 DELIVERY & PAYMENT:
 • Metro Manila Courier Delivery: ₱50 (FREE for orders ₱500+)
-• Store Pickup: Ready in 10-15 mins at BGC High Street
+• Store Pickup: Ready in 10-15 mins at Crimson Street, Navarro, General Trias
 • Payment Options: Cash on Delivery (COD), GCash, Maya E-Wallet
 
 👉 HOW TO ORDER DIRECTLY:
 Simply reply with your order right here in one message!
 For example:
-"Order 2 Avenue Spanish Latte with oat milk and 1 Artisan Butter Croissant. Deliver to Unit 12B Two Serendra BGC. Phone: 09171234567. COD."
+"Order 2 Matcha Strawberry with oat milk and 1 Matcha Mango. Deliver to Crimson Street, Navarro, General Trias. Phone: 09171234567. COD."
 
 Our automated engine will immediately log your ticket to the barista kitchen and send your official automated receipt right here on Messenger! 🧾☕`;
 
@@ -1374,7 +1374,7 @@ async function processMessengerMessage(params: {
     session.cart = [];
     session.state = 'browsing';
     return {
-      reply: `Your ordering cart has been cleared. 🛒 Welcome back! Feel free to ask about our specialty drinks, artisan bakery, or tell me what you'd like to order!`,
+      reply: `Your ordering cart has been cleared. 🛒 Welcome back! Feel free to ask about our ceremonial matcha drinks and fruit blends, or tell me what you'd like to order!`,
       matchedProducts: productsStore.filter((p) => p.isPopular).slice(0, 2),
       source: 'meta-ai-system',
       isOrderCreated: false,
@@ -1451,7 +1451,7 @@ async function processMessengerMessage(params: {
 
       const prompt = `You are the official Meta AI Barista & Automated Ordering Assistant for Matcha Avenue Cafe's Facebook Page (ID: ${metaAiConfig.pageId}, Page: ${metaAiConfig.pageUrl}).
 Store hours: 7:00 AM – 10:00 PM daily.
-Location: 7th Ave & 28th St, BGC High Street, Taguig.
+Location: Crimson Street, Navarro, General Trias.
 Currency: Philippine Pesos (₱).
 Standard Delivery Fee: ₱50 (FREE for orders ₱500 and above across Metro Manila).
 Payment Methods: Cash on Delivery (COD), GCash (0917-888-2233), Maya.
@@ -1473,7 +1473,7 @@ CRITICAL INSTRUCTIONS:
 1. Understand and accurately answer ANYTHING the customer says, in English, Filipino/Tagalog, or Taglish.
 2. If the customer expresses intent to order without naming specific items yet (e.g., "I want to order", "order po", "how to order", "can I order", "pa-order") OR explicitly asks for the menu (e.g., "menu", "patingin ng menu", "what do you have", "what do you sell"):
    Set intent to "show_menu". The system will directly show the complete shop menu and prices!
-3. If they mention specific items to order (e.g., "Spanish Latte", "Butter Croissant", "Cold Brew", "Dalawang Spanish latte"), extract the matching menu item name, quantity, and customizations (oat milk, less sweet, hot, iced, etc.).
+3. If they mention specific items to order (e.g., "Matcha Strawberry", "Matcha Mango", "Matcha Frappe", "Dalawang Matcha Strawberry"), extract the matching menu item name, quantity, and customizations (oat milk, less sweet, hot, iced, etc.).
 4. If they provide customer details (name, contact phone, delivery address or pickup request, payment method), extract them into detectedCustomer.
 5. Determine if the customer is confirming or completing their order (e.g. provided items + address/phone, or said "confirm", "place order", "order na", "yes", "proceed").
 6. Write a warm, polite barista response:
@@ -1486,7 +1486,7 @@ You MUST reply with STRICT JSON in this exact structure:
   "intent": "inquiry" | "show_menu" | "order" | "provide_info" | "confirm" | "cancel",
   "detectedItems": [
     {
-      "productName": "Avenue Spanish Latte",
+      "productName": "Matcha Strawberry",
       "quantity": 2,
       "modifiers": "Barista Oat Milk (+₱20), 50% Sweet"
     }
@@ -1530,7 +1530,7 @@ You MUST reply with STRICT JSON in this exact structure:
     // A. Detect Products from Menu
     for (const prod of productsStore) {
       const prodLower = prod.name.toLowerCase();
-      // Match keywords e.g. "spanish latte", "cold brew", "croissant"
+      // Match keywords e.g. "matcha strawberry", "matcha mango", "matcha frappe"
       const shortName = prodLower.replace('avenue ', '').replace('iced ', '').replace('dark roast ', '');
       if (lower.includes(prodLower) || lower.includes(shortName)) {
         // Find quantity in proximity
@@ -1573,7 +1573,7 @@ You MUST reply with STRICT JSON in this exact structure:
       let rawAddr = addressMatch[1].trim();
       rawAddr = rawAddr.replace(/[,.]?\s*(?:phone|contact|mobile|cell|name|payment|cod|gcash|maya)[\s:].*$/i, '').trim();
       detectedCustomer.address = rawAddr;
-    } else if (lower.includes('bgc') || lower.includes('taguig') || lower.includes('makati') || lower.includes('serendra') || lower.includes('pasig') || lower.includes('quezon')) {
+    } else if (lower.includes('bgc') || lower.includes('taguig') || lower.includes('makati') || lower.includes('serendra') || lower.includes('pasig') || lower.includes('quezon') || lower.includes('cavite') || lower.includes('general trias') || lower.includes('navarro') || lower.includes('imus')) {
       let rawAddr = query.split(/phone|contact|mobile|name|gcash|cod|pay/i)[0].trim();
       rawAddr = rawAddr.replace(/^(?:deliver\s*(?:to|at)?|order|pa-order\s*po|please)\s*/i, '').trim();
       if (rawAddr.length >= 5) detectedCustomer.address = rawAddr;
@@ -1807,7 +1807,7 @@ You MUST reply with STRICT JSON in this exact structure:
     if (!session.customerInfo.name || session.customerInfo.name === 'Facebook Guest') missing.push('Your Full Name');
     if (!session.customerInfo.paymentMethod) missing.push('Payment Method (Cash on Delivery, GCash, or Maya)');
 
-    let reply = `☕ FULL DETAILS OF YOUR ORDER:\n━━━━━━━━━━━━━━━━━━━━━━\n${itemsSummary}\n━━━━━━━━━━━━━━━━━━━━━━\nSubtotal: ₱${subtotal.toFixed(2)}\nDelivery Fee: ₱${deliveryFee.toFixed(2)} (${deliveryFee === 0 ? 'FREE Promo for orders ₱500+' : 'Standard Courier'})\nTOTAL AMOUNT PAYABLE: ₱${total.toFixed(2)}\n\n📋 Recorded Information:\n• Customer: ${session.customerInfo.name || session.senderName || 'Valued Customer'}\n• Order Type: ${isPickup ? '🏪 Store Pick-up (BGC High Street)' : '🛵 Doorstep Delivery'}\n• Delivery Address: ${session.customerInfo.address || '⚠️ Please provide address'}\n• Mobile Number: ${session.customerInfo.phone || '⚠️ Please provide mobile number'}\n• Payment Option: ${session.customerInfo.paymentMethod === 'gcash' ? 'GCash E-Wallet' : session.customerInfo.paymentMethod === 'maya' ? 'Maya' : 'Cash on Delivery (COD)'}`;
+    let reply = `☕ FULL DETAILS OF YOUR ORDER:\n━━━━━━━━━━━━━━━━━━━━━━\n${itemsSummary}\n━━━━━━━━━━━━━━━━━━━━━━\nSubtotal: ₱${subtotal.toFixed(2)}\nDelivery Fee: ₱${deliveryFee.toFixed(2)} (${deliveryFee === 0 ? 'FREE Promo for orders ₱500+' : 'Standard Courier'})\nTOTAL AMOUNT PAYABLE: ₱${total.toFixed(2)}\n\n📋 Recorded Information:\n• Customer: ${session.customerInfo.name || session.senderName || 'Valued Customer'}\n• Order Type: ${isPickup ? '🏪 Store Pick-up (Crimson Street, Navarro, General Trias)' : '🛵 Doorstep Delivery'}\n• Delivery Address: ${session.customerInfo.address || '⚠️ Please provide address'}\n• Mobile Number: ${session.customerInfo.phone || '⚠️ Please provide mobile number'}\n• Payment Option: ${session.customerInfo.paymentMethod === 'gcash' ? 'GCash E-Wallet' : session.customerInfo.paymentMethod === 'maya' ? 'Maya' : 'Cash on Delivery (COD)'}`;
 
     if (missing.length > 0) {
       reply += `\n\n📍 To finalize your order and automatically generate your official Messenger receipt, please provide:\n${missing.map((m, i) => `${i + 1}. ${m}`).join('\n')}\n\nYou can reply with all details in one message! ☕✨`;
@@ -1850,19 +1850,19 @@ You MUST reply with STRICT JSON in this exact structure:
 
   if (!reply) {
     if (lower.includes('iced') || lower.includes('cold') || lower.includes('refreshing') || lower.includes('malamig')) {
-      matched = productsStore.filter((p) => p.category.toLowerCase().includes('cold') || p.name.toLowerCase().includes('iced'));
-      reply = `Here are our refreshing iced favorites! ❄️ You can customize with Barista Oat Milk (+₱20) or choose sweetness levels (100% regular, 50% less sweet, or 0% unsweetened). To order, reply with your drink anytime (e.g. "Order 2 Spanish Latte and 1 Croissant")!`;
-    } else if (lower.includes('latte') || lower.includes('spanish') || lower.includes('kape') || lower.includes('coffee')) {
-      matched = productsStore.filter((p) => p.name.toLowerCase().includes('latte') || p.category.toLowerCase().includes('espresso'));
-      reply = `Our specialty coffees are crafted with freshly roasted Arabica beans and double espresso! ☕ The Avenue Spanish Latte with condensed milk (₱145) is our #1 bestseller. Would you like to order one for doorstep delivery or store pickup?`;
-    } else if (lower.includes('pastry') || lower.includes('croissant') || lower.includes('bread') || lower.includes('food') || lower.includes('eat') || lower.includes('tinapay') || lower.includes('pagkain')) {
-      matched = productsStore.filter((p) => p.category.toLowerCase().includes('pastr') || p.category.toLowerCase().includes('panini'));
-      reply = `Our artisan bakery items are freshly baked each morning! 🥐 Try our Butter Croissant (₱99 on promo) or Truffle Mushroom Panini (₱240). Tell me what you'd like to order anytime!`;
+      matched = productsStore.filter((p) => p.category.toLowerCase().includes('frappe') || p.name.toLowerCase().includes('iced') || p.category.toLowerCase().includes('fruit'));
+      reply = `Here are our refreshing iced matcha favorites! ❄️ You can customize with Barista Oat Milk (+₱20) or choose sweetness levels (100% regular, 50% less sweet, or 0% unsweetened). To order, reply with your drink anytime (e.g. "Order 2 Matcha Strawberry and 1 Matcha Mango")!`;
+    } else if (lower.includes('matcha') || lower.includes('latte') || lower.includes('green tea')) {
+      matched = productsStore.filter((p) => p.name.toLowerCase().includes('matcha') || p.category.toLowerCase().includes('matcha'));
+      reply = `Our whole menu is crafted with ceremonial grade Uji matcha! 🍵 Matcha Strawberry (₱185) and Matcha Mango (₱185) are guest favorites. Would you like to order one for doorstep delivery or store pickup?`;
+    } else if (lower.includes('fruit') || lower.includes('flavor') || lower.includes('flavour') || lower.includes('strawberry') || lower.includes('mango') || lower.includes('avocado')) {
+      matched = productsStore.filter((p) => p.category.toLowerCase().includes('fruit'));
+      reply = `Our Matcha Fruit Series blends ceremonial matcha with real fruit purée! 🍓 Choose from Matcha Strawberry, Matcha Mango, Matcha Blueberry, Matcha Avocado, Matcha Peach or Matcha Lychee. Tell me which flavor you'd like to order!`;
     } else if (lower.includes('hour') || lower.includes('open') || lower.includes('time') || lower.includes('oras') || lower.includes('bukas')) {
       reply = `Matcha Avenue Cafe is open daily from 7:00 AM – 10:00 PM! 🏪 You can order on Facebook Messenger for express courier delivery or store pickup anytime during store hours.`;
       matched = productsStore.filter((p) => p.isPopular).slice(0, 2);
     } else if (lower.includes('where') || lower.includes('location') || lower.includes('address') || lower.includes('saan') || lower.includes('lugar')) {
-      reply = `Our flagship store is located at 7th Ave & 28th St, BGC High Street, Taguig! 📍 We deliver across Metro Manila for a flat ₱50 courier fee (FREE on orders ₱500+).`;
+      reply = `Our flagship store is located at Crimson Street, Navarro, General Trias! 📍 We deliver across Metro Manila for a flat ₱50 courier fee (FREE on orders ₱500+).`;
       matched = productsStore.filter((p) => p.isPopular).slice(0, 2);
     } else if (lower.includes('delivery') || lower.includes('deliver') || lower.includes('fee') || lower.includes('shipping') || lower.includes('magkano delivery')) {
       reply = `🛵 Delivery Fee: Flat ₱50 across Metro Manila, and FREE for orders ₱500 and above! We deliver straight to your doorstep with live tracking and automated receipt updates.`;
@@ -1874,14 +1874,14 @@ You MUST reply with STRICT JSON in this exact structure:
       matched = productsStore.filter((p) => p.description.toLowerCase().includes('oat') || p.name.toLowerCase().includes('matcha'));
       reply = `Yes! We offer premium Barista-grade Oat Milk (+₱20) and Almond Milk (+₱20) as dairy-free substitutes for all hot and iced beverages! 🌿`;
     } else if (lower.includes('wifi') || lower.includes('internet') || lower.includes('password')) {
-      reply = `Yes, we offer complimentary high-speed WiFi for all guests visiting our BGC High Street café! Connect to 'MatchaAvenueGuest' with no password required. 📶`;
+      reply = `Yes, we offer complimentary high-speed WiFi for all guests visiting our Crimson Street, Navarro, General Trias café! Connect to 'MatchaAvenueGuest' with no password required. 📶`;
       matched = productsStore.filter((p) => p.isPopular).slice(0, 2);
     } else if (lower.includes('facebook') || lower.includes('page') || lower.includes('link') || lower.includes('contact')) {
       reply = `You're connected to Matcha Avenue Cafe's official Facebook Page (ID: ${metaAiConfig.pageId})! 📱\n• Facebook Page: ${metaAiConfig.pageUrl}\n• Business Suite Inbox: ${metaAiConfig.businessSuiteInboxUrl}\n• Messenger: ${metaAiConfig.messengerUrl}\n\nFeel free to ask for our menu or order directly anytime! 🍵`;
       matched = productsStore.filter((p) => p.isPopular).slice(0, 2);
     } else {
       matched = productsStore.filter((p) => p.isPopular || p.isFeatured).slice(0, 3);
-      reply = `Welcome to Matcha Avenue Cafe! 🍵 I am your automated AI Barista for our official Facebook Page. If you want to order, say "menu" to see our full selection, or tell me your order directly (e.g. "Order 2 Uji Matcha and 1 Croissant to Serendra BGC. 09171234567. COD") to receive an instant automated receipt! How can I brew your day today?`;
+      reply = `Welcome to Matcha Avenue Cafe! 🍵 I am your automated AI Barista for our official Facebook Page. If you want to order, say "menu" to see our full matcha selection, or tell me your order directly (e.g. "Order 2 Matcha Strawberry and 1 Matcha Mango to Crimson Street, Navarro, General Trias. 09171234567. COD") to receive an instant automated receipt! How can I brew your day today?`;
     }
   } else {
     // If Gemini provided a response, find matched products mentioned in query or reply
@@ -2136,7 +2136,7 @@ app.post('/api/meta-ai/send-messenger', async (req: Request, res: Response) => {
 app.post('/api/meta-ai/simulate-message', async (req: Request, res: Response) => {
   const { senderName, senderId, messageText, engine } = req.body;
   const name = (senderName || 'Maria Santos').trim();
-  const text = (messageText || 'Order 2 Spanish Latte with oat milk, deliver to Two Serendra BGC, phone 09178889999, COD').trim();
+  const text = (messageText || 'Order 2 Matcha Strawberry with oat milk, deliver to Two Serendra BGC, phone 09178889999, COD').trim();
   const id = senderId || `fb-sim-${name.toLowerCase().replace(/[^a-z0-9]/g, '') || 'user'}`;
   const baseUrl = `${req.protocol}://${req.get('host')}`;
 

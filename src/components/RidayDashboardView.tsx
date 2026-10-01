@@ -39,18 +39,6 @@ interface RidayDashboardViewProps {
   onOpenReport?: () => void;
 }
 
-interface TrendingItemData {
-  id: string;
-  rank: number;
-  name: string;
-  price: string;
-  category: string;
-  image: string;
-  salesCount: number;
-  salesChange: string;
-  isPositive: boolean;
-}
-
 export const RidayDashboardView: React.FC<RidayDashboardViewProps> = ({
   stats,
   orders,
@@ -152,65 +140,6 @@ export const RidayDashboardView: React.FC<RidayDashboardViewProps> = ({
       </div>
     );
   };
-
-  // Trending items data modeled exactly after the screenshot with fallback / live data support
-  const defaultTrendingItems: TrendingItemData[] = [
-    {
-      id: '1',
-      rank: 1,
-      name: 'Biryanis Pulav',
-      price: '$12.00',
-      category: 'Main Course',
-      image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=240&auto=format&fit=crop&q=80',
-      salesCount: 158,
-      salesChange: 'Sales (20%)',
-      isPositive: true
-    },
-    {
-      id: '2',
-      rank: 2,
-      name: 'Burgers',
-      price: '$42.00',
-      category: 'Snakes',
-      image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=240&auto=format&fit=crop&q=80',
-      salesCount: 18,
-      salesChange: 'Sales (-0.5%)',
-      isPositive: false
-    },
-    {
-      id: '3',
-      rank: 3,
-      name: 'Dal Palak Recipe',
-      price: '$60.00',
-      category: 'Main Course',
-      image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=240&auto=format&fit=crop&q=80',
-      salesCount: 258,
-      salesChange: 'Sales (15%)',
-      isPositive: true
-    },
-    {
-      id: '4',
-      rank: 4,
-      name: 'Pan Noodles',
-      price: '$112.00',
-      category: 'Staters',
-      image: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=240&auto=format&fit=crop&q=80',
-      salesCount: 58,
-      salesChange: 'Sales (-10%)',
-      isPositive: false
-    },
-    {
-      id: '5',
-      rank: 5,
-      name: 'Vegetable Jalfrezi',
-      price: '$120.00',
-      category: 'Main Course',
-      image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=240&auto=format&fit=crop&q=80',
-      salesCount: 215,
-      salesChange: 'Sales (21%)',
-      isPositive: true
-    }
-  ];
 
   // Revenue Overview Bar Chart Data
   const revenueChartBars = [
@@ -495,95 +424,6 @@ export const RidayDashboardView: React.FC<RidayDashboardViewProps> = ({
             )}
           </div>
 
-        </div>
-
-        {/* TRENDING ITEMS CARD */}
-        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-stone-100/80 shadow-xs space-y-5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-stone-900">Trending Items</h2>
-            <button
-              type="button"
-              onClick={() => onNavigateTab('menu')}
-              className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer transition-colors"
-            >
-              <span>See All</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <div className="divide-y divide-stone-100">
-            {defaultTrendingItems.map((item) => (
-              <div
-                key={item.id}
-                className="py-3.5 first:pt-0 last:pb-0 flex items-center justify-between gap-3 hover:bg-stone-50/60 p-2 rounded-2xl transition-colors"
-              >
-                {/* Left: Rank, Image, Title & Price */}
-                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                  <span className="text-xs sm:text-sm font-semibold text-stone-400 w-6 shrink-0">
-                    #{item.rank}
-                  </span>
-
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl object-cover border border-stone-100 shadow-2xs shrink-0"
-                  />
-
-                  <div className="min-w-0">
-                    <h3 className="text-sm font-bold text-stone-900 truncate">
-                      {item.name}
-                    </h3>
-                    <div className="flex items-center gap-2 mt-0.5 text-xs">
-                      <span className="font-semibold text-stone-800 font-mono">
-                        {item.price}
-                      </span>
-                      <span className="text-emerald-700 font-medium">
-                        {item.category}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right: Sparkline Mini Curve & Sales Metric */}
-                <div className="flex items-center gap-4 sm:gap-6 shrink-0">
-                  {/* SVG Sparkline (Stepped curve) */}
-                  <div className="w-16 h-8 hidden sm:flex items-center justify-center">
-                    <svg className="w-16 h-8 overflow-visible" viewBox="0 0 64 32">
-                      {item.isPositive ? (
-                        <path
-                          d="M 2 24 L 20 24 L 32 14 L 46 14 L 58 4"
-                          fill="none"
-                          stroke="#10b981"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      ) : (
-                        <path
-                          d="M 2 6 L 18 6 L 30 18 L 44 18 L 58 26"
-                          fill="none"
-                          stroke="#38bdf8"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      )}
-                    </svg>
-                  </div>
-
-                  {/* Count & Sales % */}
-                  <div className="text-right min-w-[70px]">
-                    <div className="text-base sm:text-lg font-bold text-stone-900 font-sans">
-                      {item.salesCount}
-                    </div>
-                    <div className="text-[11px] text-stone-500">
-                      {item.salesChange}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* REVENUE OVERVIEW CARD */}

@@ -68,7 +68,7 @@ export const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
           address: deliveryAddress.trim() || 'Metro Manila, Philippines',
           unitFloor: unitFloor.trim(),
           landmark: landmark.trim(),
-          coordinates: { lat: 14.5515, lng: 121.0510, label: deliveryAddress || 'Metro Manila' }
+          coordinates: { lat: 14.3857, lng: 120.8992, label: deliveryAddress || 'Metro Manila' }
         })
       });
 
@@ -89,7 +89,7 @@ export const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
         address: deliveryAddress.trim() || 'Metro Manila, Philippines',
         unitFloor: unitFloor.trim(),
         landmark: landmark.trim(),
-        coordinates: { lat: 14.5515, lng: 121.0510, label: deliveryAddress || 'Metro Manila' },
+        coordinates: { lat: 14.3857, lng: 120.8992, label: deliveryAddress || 'Metro Manila' },
         memberTier: 'Standard'
       };
       onSuccess(newProf);
@@ -252,7 +252,7 @@ export const CreateAccountModal: React.FC<CreateAccountModalProps> = ({
             </span>
             <input
               type="text"
-              placeholder="Street name, Barangay, City (e.g. BGC High Street, Taguig)"
+              placeholder="Street name, Barangay, City (e.g. Crimson Street, Navarro, General Trias)"
               value={deliveryAddress}
               onChange={(e) => setDeliveryAddress(e.target.value)}
               className="w-full bg-stone-50 text-xs text-stone-900 placeholder-stone-400 px-3 py-2 rounded-lg border border-stone-200 focus:outline-none focus:border-amber-600 focus:bg-white"

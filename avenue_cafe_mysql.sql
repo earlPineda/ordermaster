@@ -23,12 +23,9 @@ CREATE TABLE IF NOT EXISTS categories (
 
 -- Seed categories
 INSERT INTO categories (name) VALUES
-('Espresso & Coffee'),
-('Cold Brew & Frappes'),
-('Artisan Teas'),
-('Pastries & Bakery'),
-('Gourmet Paninis'),
-('Desserts');
+('Matcha Classics'),
+('Matcha Fruit Series'),
+('Matcha Frappes');
 
 -- ---------------------------------------------------
 -- 2. Table structure for 'products'
@@ -50,12 +47,16 @@ CREATE TABLE IF NOT EXISTS products (
 
 -- Seed products (Prices in PHP ₱)
 INSERT INTO products (id, name, category_name, price, description, image, available, is_popular, calories, prep_time_mins) VALUES
-('prod-1', 'Avenue Spanish Latte', 'Espresso & Coffee', 165.00, 'Double shot espresso blend with sweet condensed milk swirl.', 'https://images.unsplash.com/photo-1541167760496-1628856ab772', 1, 1, 280, 4),
-('prod-2', 'Vanilla Bean Cold Brew', 'Cold Brew & Frappes', 175.00, '18-hour steep dark roast topped with vanilla cold foam.', 'https://images.unsplash.com/photo-1517701604599-bb29b565090c', 1, 1, 190, 3),
-('prod-3', 'Iced Uji Cream Matcha', 'Artisan Teas', 185.00, 'Ceremonial grade Uji matcha whisked with oat milk.', 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a', 1, 1, 220, 5),
-('prod-4', 'Artisan Butter Croissant', 'Pastries & Bakery', 120.00, 'Flaky French butter croissant freshly baked daily.', 'https://images.unsplash.com/photo-1555507036-ab1f4038808a', 1, 1, 320, 2),
-('prod-5', 'Smoked Turkey & Pesto Panini', 'Gourmet Paninis', 260.00, 'Smoked turkey, provolone, and basil pesto on sourdough.', 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af', 1, 1, 560, 8),
-('prod-6', 'Basque Burnt Cheesecake', 'Desserts', 195.00, 'Caramelized top cheesecake with molten cream center.', 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad', 1, 0, 410, 2);
+('prod-1', 'Classic Uji Matcha Latte', 'Matcha Classics', 165.00, 'Ceremonial grade Uji matcha whisked with velvety steamed milk.', 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a', 1, 1, 180, 4),
+('prod-2', 'Ceremonial Matcha Cold Foam', 'Matcha Classics', 175.00, 'Iced ceremonial matcha topped with barista sweet cream cold foam.', 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a', 1, 1, 160, 5),
+('prod-3', 'Matcha Strawberry', 'Matcha Fruit Series', 185.00, 'Ceremonial matcha blended with fresh strawberry puree and creamy milk.', 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a', 1, 1, 220, 5),
+('prod-4', 'Matcha Mango', 'Matcha Fruit Series', 185.00, 'Ripe mango puree swirled into smooth ceremonial matcha and milk.', 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a', 1, 1, 210, 5),
+('prod-5', 'Matcha Blueberry', 'Matcha Fruit Series', 185.00, 'Antioxidant-rich blueberry puree layered with ceremonial matcha.', 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a', 1, 1, 200, 5),
+('prod-6', 'Matcha Avocado', 'Matcha Fruit Series', 195.00, 'Silky avocado blended with ceremonial matcha for a rich, creamy treat.', 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a', 1, 1, 260, 6),
+('prod-7', 'Matcha Peach', 'Matcha Fruit Series', 185.00, 'Sweet summer peach puree folded into ceremonial matcha and milk.', 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a', 1, 0, 200, 5),
+('prod-8', 'Matcha Lychee', 'Matcha Fruit Series', 185.00, 'Fragrant lychee blended with ceremonial matcha over ice.', 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a', 1, 0, 190, 5),
+('prod-9', 'Matcha Strawberry Frappe', 'Matcha Frappes', 205.00, 'Frozen matcha-strawberry frappe topped with whipped cream.', 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a', 1, 1, 300, 6),
+('prod-10', 'Matcha Oreo Frappe', 'Matcha Frappes', 205.00, 'Frozen ceremonial matcha blended with crushed cookies and cream.', 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a', 1, 0, 320, 6);
 
 -- ---------------------------------------------------
 -- 3. Table structure for 'orders'
@@ -115,20 +116,7 @@ CREATE TABLE IF NOT EXISTS admin_notifications (
   FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Seed Sample Orders
-INSERT INTO orders (id, order_number, customer_name, customer_phone, customer_address, customer_notes, ewallet_number, reference_number, delivery_type, payment_method, subtotal, tax, delivery_fee, total, status) VALUES
-('ord-101', 'ORD-1001', 'Maria Santos', '09175550192', '742 Evergreen Terrace, Unit 4B', 'Ring bell upon arrival', '09175550192', '10293847561', 'delivery', 'gcash', 570.00, 45.60, 50.00, 665.60, 'preparing'),
-('ord-102', 'ORD-1002', 'Juan Dela Cruz', '09201234567', '321 Ocean Avenue, BGC Taguig', 'Pickup at counter', '09201234567', '99887766554', 'pickup', 'maya', 435.00, 34.80, 0.00, 469.80, 'pending');
-
-INSERT INTO order_items (order_id, product_id, product_name, unit_price, quantity, subtotal, notes) VALUES
-('ord-101', 'prod-1', 'Avenue Spanish Latte', 165.00, 2, 330.00, 'Less sweet'),
-('ord-101', 'prod-4', 'Artisan Butter Croissant', 120.00, 2, 240.00, 'Warmed'),
-('ord-102', 'prod-5', 'Smoked Turkey & Pesto Panini', 260.00, 1, 260.00, NULL),
-('ord-102', 'prod-2', 'Vanilla Bean Cold Brew', 175.00, 1, 175.00, NULL);
-
-INSERT INTO admin_notifications (id, order_id, order_number, customer_name, total_amount, message, is_read) VALUES
-('notif-1', 'ord-101', 'ORD-1001', 'Maria Santos', 665.60, 'New order #ORD-1001 received (₱665.60 via GCash)', 1),
-('notif-2', 'ord-102', 'ORD-1002', 'Juan Dela Cruz', 469.80, 'New order #ORD-1002 received (₱469.80 via Maya)', 0);
+-- No sample/demo orders are seeded — the orders table starts empty.
 
 -- ===================================================
 -- End of Avenue Café MySQL Database Schema

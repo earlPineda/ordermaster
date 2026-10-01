@@ -139,7 +139,7 @@ export const AiOrderingAssistant: React.FC<AiOrderingAssistantProps> = ({
           matchedProducts = products.filter(
             (p) =>
               p.name.toLowerCase().includes('matcha') ||
-              p.name.toLowerCase().includes('cold brew') ||
+              p.category.toLowerCase().includes('fruit') ||
               p.description.toLowerCase().includes('oat')
           );
           responseText = `Great choice! These artisan picks can all be crafted with creamy Oat or Almond milk and plant-based ingredients: 🌱`;
@@ -149,12 +149,12 @@ export const AiOrderingAssistant: React.FC<AiOrderingAssistantProps> = ({
         } else if (lower.includes('sweet') || lower.includes('dessert') || lower.includes('caramel') || lower.includes('chocolate')) {
           matchedProducts = products.filter(
             (p) =>
-              p.category.toLowerCase().includes('dessert') ||
-              p.name.toLowerCase().includes('spanish') ||
-              p.name.toLowerCase().includes('vanilla') ||
+              p.category.toLowerCase().includes('frappe') ||
+              p.name.toLowerCase().includes('strawberry') ||
+              p.name.toLowerCase().includes('mango') ||
               p.description.toLowerCase().includes('sweet')
           );
-          responseText = `Satisfy your sweet tooth with our signature handcrafted sweet treats & rich coffees: 🍫✨`;
+          responseText = `Satisfy your sweet tooth with our signature handcrafted matcha treats: 🍵✨`;
         } else if (lower.includes('facebook') || lower.includes('page') || lower.includes('messenger')) {
           matchedProducts = products.filter((p) => p.isPopular).slice(0, 2);
           responseText = `You can connect with us directly on our official Facebook Page (ID: ${FB_PAGE_ID}) at ${FB_PAGE_URL} or message our Meta AI Barista directly at ${FB_MESSENGER_URL}! ☕💙`;
@@ -199,9 +199,9 @@ export const AiOrderingAssistant: React.FC<AiOrderingAssistantProps> = ({
 
   const suggestedPrompts = [
     '✨ Best Sellers',
-    '❄️ Iced Drinks',
-    '🥐 Fresh Pastries',
-    '🔥 Flash Deals',
+    '🍓 Matcha Strawberry',
+    '🥭 Matcha Mango',
+    '🧊 Matcha Frappes',
     '🌱 Dairy-Free',
     '💬 Facebook Page'
   ];

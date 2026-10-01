@@ -503,7 +503,7 @@ export const SupabasePanel: React.FC<SupabasePanelProps> = ({ products, orders }
                 </label>
                 <input
                   type="text"
-                  placeholder="https://xyzprojectid.supabase.co"
+                  placeholder="https://swpodakdlkeardfqvnrs.supabase.co"
                   value={supabaseConfig.supabaseUrl}
                   onChange={(e) => setSupabaseConfig({ ...supabaseConfig, supabaseUrl: e.target.value })}
                   className="w-full bg-stone-50 text-stone-900 px-3.5 py-2 rounded-lg border border-stone-200 focus:outline-none focus:border-amber-600 focus:bg-white font-mono text-xs"
@@ -522,6 +522,20 @@ export const SupabasePanel: React.FC<SupabasePanelProps> = ({ products, orders }
                   className="w-full bg-stone-50 text-stone-900 px-3.5 py-2 rounded-lg border border-stone-200 focus:outline-none focus:border-amber-600 focus:bg-white font-mono text-xs"
                 />
               </div>
+
+              <p className="text-[11px] text-stone-500 leading-relaxed">
+                Project ref <span className="font-mono text-stone-700">swpodakdlkeardfqvnrs</span> — copy the{' '}
+                <strong>Project URL</strong> and <strong>anon public</strong> key from{' '}
+                <a
+                  href="https://supabase.com/dashboard/project/swpodakdlkeardfqvnrs/settings/api"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-600 hover:underline font-semibold"
+                >
+                  Project Settings → API
+                </a>
+                , then run the SQL from the <strong>SQL Schema</strong> tab once to create the tables.
+              </p>
             </div>
 
             {testResult && (

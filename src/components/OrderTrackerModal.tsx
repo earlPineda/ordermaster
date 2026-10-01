@@ -523,7 +523,7 @@ export const OrderTrackerModal: React.FC<OrderTrackerModalProps> = ({
                           </label>
                           <input
                             type="text"
-                            placeholder="e.g. Loved the Spanish Latte!"
+                            placeholder="e.g. Loved the Matcha Strawberry!"
                             value={feedbackText}
                             onChange={(e) => setFeedbackText(e.target.value)}
                             className="w-full bg-stone-50 text-xs text-stone-900 placeholder-stone-400 px-3 py-1.5 rounded-lg border border-stone-200 focus:outline-none focus:border-emerald-600 focus:bg-white"
@@ -569,7 +569,7 @@ export const OrderTrackerModal: React.FC<OrderTrackerModalProps> = ({
                       <MapPin className="w-3 h-3 text-emerald-600" /> Matcha Avenue Cafe Flagship Store
                     </p>
                     <p className="text-[11px] text-stone-500">
-                      7th Ave & 28th St, Bonifacio High Street, BGC, Taguig City
+                      Crimson Street, Navarro, General Trias
                     </p>
                   </div>
 
@@ -785,7 +785,7 @@ export const OrderTrackerModal: React.FC<OrderTrackerModalProps> = ({
 
                     <div className="pt-1">
                       <GoogleMapsLocationPicker
-                        coordinates={currentOrder.customer.coordinates || { lat: 14.5515, lng: 121.0510, label: currentOrder.customer.address }}
+                        coordinates={currentOrder.customer.coordinates || { lat: 14.3857, lng: 120.8992, label: currentOrder.customer.address }}
                         address={currentOrder.customer.address}
                         onChangeLocation={() => {}}
                         isReadOnly={true}

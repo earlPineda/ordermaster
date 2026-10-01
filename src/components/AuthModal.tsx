@@ -77,7 +77,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       phone: custPhone.trim(),
       address: custAddress.trim() || 'Metro Manila, Philippines',
       landmark: custLandmark.trim(),
-      coordinates: { lat: 14.5515, lng: 121.0510, label: custAddress ? custAddress.slice(0, 25) : 'Metro Manila' },
+      coordinates: { lat: 14.3857, lng: 120.8992, label: custAddress ? custAddress.slice(0, 25) : 'Metro Manila' },
       memberTier: customerProfile?.memberTier || 'Standard'
     };
 

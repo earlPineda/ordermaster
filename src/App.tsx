@@ -144,12 +144,9 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories] = useState<Category[]>([
     'All',
-    'Espresso & Coffee',
-    'Cold Brew & Frappes',
-    'Artisan Teas',
-    'Pastries & Bakery',
-    'Gourmet Paninis',
-    'Desserts'
+    'Matcha Classics',
+    'Matcha Fruit Series',
+    'Matcha Frappes'
   ]);
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
   const [searchQuery, setSearchQuery] = useState('');

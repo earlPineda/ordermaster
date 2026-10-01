@@ -3,21 +3,42 @@ import { Product, Order, AdminNotification, SalesReportSnapshot, SupabaseConfig 
 
 const STORAGE_KEY = 'avenue_cafe_supabase_config';
 
+// ---------------------------------------------------------------------------
+// Supabase project connection (project ref: swpodakdlkeardfqvnrs)
+// The Project URL is public; the Anon/Public API key is supplied through the
+// VITE_SUPABASE_ANON_KEY environment variable (.env) or the admin "Supabase"
+// panel, which persists it to localStorage.
+// ---------------------------------------------------------------------------
+const ENV_SUPABASE_URL: string =
+  (import.meta as any).env?.VITE_SUPABASE_URL || 'https://swpodakdlkeardfqvnrs.supabase.co';
+const ENV_SUPABASE_ANON_KEY: string = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || '';
+
+const isPlaceholderUrl = (url?: string): boolean =>
+  !url || url.includes('xyzcompanyproject') || url.includes('xyzprojectid');
+const isPlaceholderKey = (key?: string): boolean =>
+  !key || key.trim() === '' || key.includes('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...');
+
 export const getStoredSupabaseConfig = (): SupabaseConfig => {
+  let saved: Partial<SupabaseConfig> | null = null;
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      return JSON.parse(saved);
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      saved = JSON.parse(raw) as Partial<SupabaseConfig>;
     }
   } catch {
-    // fallback
+    // fall back to the environment defaults below
   }
+
+  const storedUrl = saved?.supabaseUrl;
+  const storedKey = saved?.supabaseAnonKey;
+
   return {
-    supabaseUrl: (import.meta as any).env?.VITE_SUPABASE_URL || 'https://xyzcompanyproject.supabase.co',
-    supabaseAnonKey: (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-    isConnected: false,
-    lastSyncedAt: null,
-    autoSync: true
+    // Use a real value saved from the admin panel, otherwise fall back to env.
+    supabaseUrl: !isPlaceholderUrl(storedUrl) ? (storedUrl as string) : ENV_SUPABASE_URL,
+    supabaseAnonKey: !isPlaceholderKey(storedKey) ? (storedKey as string) : ENV_SUPABASE_ANON_KEY,
+    isConnected: saved?.isConnected ?? false,
+    lastSyncedAt: saved?.lastSyncedAt ?? null,
+    autoSync: saved?.autoSync ?? true
   };
 };
 
@@ -38,7 +59,7 @@ export const getSupabaseClient = (url?: string, anonKey?: string): SupabaseClien
   const targetUrl = url || cfg.supabaseUrl;
   const targetKey = anonKey || cfg.supabaseAnonKey;
 
-  if (!targetUrl || !targetKey || targetUrl.includes('xyzcompanyproject')) {
+  if (!targetUrl || !targetKey || isPlaceholderUrl(targetUrl) || isPlaceholderKey(targetKey)) {
     return null;
   }
 

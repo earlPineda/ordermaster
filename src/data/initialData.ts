@@ -3,21 +3,21 @@ import { MATCHA_AVENUE_LOGO } from '../assets/logo';
 
 export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   storeName: 'Matcha Avenue Cafe',
-  tagline: 'Artisan Matcha, Specialty Coffee & Gourmet Bakery',
+  tagline: 'Ceremonial Uji Matcha, Fresh Fruit Blends & Frozen Frappes',
   logoUrl: MATCHA_AVENUE_LOGO,
-  heroBadgeText: 'Matcha Avenue Cafe Flagship • BGC High Street, Taguig City',
-  heroHeadline: 'Ceremonial Matcha & Artisan Coffee',
+  heroBadgeText: 'Matcha Avenue Cafe Flagship • Crimson Street, Navarro, General Trias',
+  heroHeadline: 'Ceremonial Matcha & Fresh Fruit Blends',
   heroHeadlineHighlight: 'Delivered Fresh to Your Door',
-  heroSubtitle: 'Savor authentic ceremonial Uji matcha, specialty espresso blends, slow-steeped cold brew, and fresh artisan French pastries with instant order dispatch.',
+  heroSubtitle: 'Savor authentic ceremonial Uji matcha blended with fresh fruit purées — strawberry, mango, blueberry, avocado and more — plus frosty matcha frappes with instant order dispatch.',
   heroAvgMinsText: '10-15',
   heroRatingText: '4.9 ★',
   heroQualityText: '100% Fresh',
   announcementActive: true,
   announcementBadge: 'SPECIAL MENU',
-  announcementText: '🍵 Welcome to Matcha Avenue Cafe! Enjoy 20% OFF all Matcha & Cold Brew specials! Free delivery for orders ₱500+',
+  announcementText: '🍵 Welcome to Matcha Avenue Cafe! Enjoy 20% OFF all Matcha Fruit Blends & Matcha Frappes! Free delivery for orders ₱500+',
   announcementLinkText: 'Order Now',
   operatingHours: '7:00 AM – 10:00 PM Daily',
-  storeAddress: '7th Ave & 28th St, Bonifacio High Street, BGC, Taguig City',
+  storeAddress: 'Crimson Street, Navarro, General Trias',
   contactPhone: '+63 917 888 2233',
   contactEmail: 'contact@matchaavenue.com',
   standardDeliveryFee: 50.00,
@@ -28,13 +28,9 @@ export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   merchantMayaName: 'MATCHA AVENUE CAFE ENTERPRISES',
   customCategories: [
     'All',
-    'Ceremonial Matcha',
-    'Espresso & Coffee',
-    'Cold Brew & Frappes',
-    'Artisan Teas',
-    'Pastries & Bakery',
-    'Gourmet Paninis',
-    'Desserts'
+    'Matcha Classics',
+    'Matcha Fruit Series',
+    'Matcha Frappes'
   ],
   showFeaturedSection: true,
   showSaleSection: true,
@@ -45,44 +41,42 @@ export const DEFAULT_STORE_SETTINGS: StoreSettings = {
 export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'prod-1',
-    name: 'Avenue Spanish Latte',
-    category: 'Espresso & Coffee',
+    name: 'Classic Uji Matcha Latte',
+    category: 'Matcha Classics',
     price: 165.00,
-    salePrice: 145.00,
-    isOnSale: true,
     isFeatured: true,
     badge: 'Best Seller',
-    description: 'Double shot espresso blend with velvety steamed milk and sweet condensed milk swirl.',
+    description: 'Ceremonial grade Uji matcha whisked with velvety steamed milk and a touch of sweetness.',
     image: '',
     available: true,
     isPopular: true,
-    calories: 280,
+    calories: 180,
     preparationTimeMinutes: 4
   },
   {
     id: 'prod-2',
-    name: 'Vanilla Bean Cold Brew',
-    category: 'Cold Brew & Frappes',
+    name: 'Ceremonial Matcha Cold Foam',
+    category: 'Matcha Classics',
     price: 175.00,
-    salePrice: 140.00,
-    isOnSale: true,
     isFeatured: true,
-    badge: '20% OFF',
-    description: '18-hour steep dark roast cold brew topped with house-made vanilla bean cold foam.',
+    badge: 'House Special',
+    description: 'Iced ceremonial matcha topped with barista sweet cream cold foam.',
     image: '',
     available: true,
     isPopular: true,
-    calories: 190,
-    preparationTimeMinutes: 3
+    calories: 160,
+    preparationTimeMinutes: 5
   },
   {
     id: 'prod-3',
-    name: 'Iced Uji Cream Matcha',
-    category: 'Artisan Teas',
+    name: 'Matcha Strawberry',
+    category: 'Matcha Fruit Series',
     price: 185.00,
+    salePrice: 160.00,
+    isOnSale: true,
     isFeatured: true,
-    badge: "Chef's Special",
-    description: 'Ceremonial grade Uji matcha whisked with oat milk and sweet cream cold foam.',
+    badge: 'Best Seller',
+    description: 'Ceremonial matcha blended with fresh strawberry purée and creamy milk.',
     image: '',
     available: true,
     isPopular: true,
@@ -91,172 +85,112 @@ export const INITIAL_PRODUCTS: Product[] = [
   },
   {
     id: 'prod-4',
-    name: 'Artisan Butter Croissant',
-    category: 'Pastries & Bakery',
-    price: 120.00,
-    salePrice: 99.00,
-    isOnSale: true,
+    name: 'Matcha Mango',
+    category: 'Matcha Fruit Series',
+    price: 185.00,
     isFeatured: true,
-    badge: 'Fresh Baked',
-    description: 'Flaky, multi-layered French butter croissant freshly baked every morning.',
+    badge: "Chef's Special",
+    description: 'Ripe mango purée swirled into smooth ceremonial matcha and milk.',
     image: '',
     available: true,
     isPopular: true,
-    calories: 320,
-    preparationTimeMinutes: 2
+    calories: 210,
+    preparationTimeMinutes: 5
   },
   {
     id: 'prod-5',
-    name: 'Smoked Turkey & Pesto Panini',
-    category: 'Gourmet Paninis',
-    price: 260.00,
-    isFeatured: false,
-    badge: 'Warm & Toasted',
-    description: 'Smoked turkey breast, melted provolone, basil pesto, and sun-dried tomatoes on toasted sourdough.',
+    name: 'Matcha Blueberry',
+    category: 'Matcha Fruit Series',
+    price: 185.00,
+    salePrice: 160.00,
+    isOnSale: true,
+    badge: 'Fresh Blend',
+    description: 'Antioxidant-rich blueberry purée layered with ceremonial matcha.',
     image: '',
     available: true,
     isPopular: true,
-    calories: 560,
-    preparationTimeMinutes: 8
+    calories: 200,
+    preparationTimeMinutes: 5
   },
   {
     id: 'prod-6',
-    name: 'Basque Burnt Cheesecake',
-    category: 'Desserts',
+    name: 'Matcha Avocado',
+    category: 'Matcha Fruit Series',
     price: 195.00,
-    salePrice: 175.00,
-    isOnSale: true,
-    isFeatured: false,
-    badge: 'Popular',
-    description: 'Caramelized top cheesecake with a silky, molten cream center.',
+    isFeatured: true,
+    badge: 'Creamy',
+    description: 'Silky avocado blended with ceremonial matcha for a rich, creamy treat.',
     image: '',
     available: true,
-    isPopular: false,
-    calories: 410,
-    preparationTimeMinutes: 2
+    isPopular: true,
+    calories: 260,
+    preparationTimeMinutes: 6
   },
   {
     id: 'prod-7',
-    name: 'Hazelnut Caramel Frappe',
-    category: 'Cold Brew & Frappes',
-    price: 190.00,
+    name: 'Matcha Peach',
+    category: 'Matcha Fruit Series',
+    price: 185.00,
     salePrice: 155.00,
     isOnSale: true,
-    isFeatured: false,
-    badge: 'Special',
-    description: 'Blended espresso with dark roasted hazelnut syrup, whipped cream, and caramel drizzle.',
+    badge: 'Seasonal',
+    description: 'Sweet summer peach purée folded into ceremonial matcha and milk.',
     image: '',
     available: true,
     isPopular: false,
-    calories: 420,
+    calories: 200,
     preparationTimeMinutes: 5
   },
   {
     id: 'prod-8',
-    name: 'Pain au Chocolat',
-    category: 'Pastries & Bakery',
-    price: 135.00,
-    isFeatured: false,
-    description: 'Warm French pastry stuffed with double dark Belgian chocolate batons.',
+    name: 'Matcha Lychee',
+    category: 'Matcha Fruit Series',
+    price: 185.00,
+    badge: 'Refreshing',
+    description: 'Fragrant lychee blended with ceremonial matcha over ice.',
     image: '',
     available: true,
     isPopular: false,
-    calories: 380,
-    preparationTimeMinutes: 2
-  }
-];
-
-export const INITIAL_ORDERS: Order[] = [
-  {
-    id: 'ord-101',
-    orderNumber: 'ORD-1001',
-    customer: {
-      name: 'Elena Rostova',
-      phone: '09175550192',
-      address: '742 Evergreen Terrace, Unit 4B, Makati City',
-      notes: 'Please ring doorbell upon arrival.',
-      ewalletNumber: '09175550192',
-      referenceNumber: '10293847561'
-    },
-    items: [
-      {
-        productId: 'prod-1',
-        productName: 'Avenue Spanish Latte',
-        unitPrice: 165.00,
-        quantity: 2,
-        subtotal: 330.00,
-        notes: 'Less sweet'
-      },
-      {
-        productId: 'prod-4',
-        productName: 'Artisan Butter Croissant',
-        unitPrice: 120.00,
-        quantity: 2,
-        subtotal: 240.00,
-        notes: 'Warmed'
-      }
-    ],
-    deliveryType: 'delivery',
-    paymentMethod: 'gcash',
-    subtotal: 570.00,
-    tax: 45.60,
-    deliveryFee: 50.00,
-    total: 665.60,
-    status: 'preparing',
-    createdAt: new Date(Date.now() - 25 * 60000).toISOString(),
-    updatedAt: new Date(Date.now() - 20 * 60000).toISOString()
+    calories: 190,
+    preparationTimeMinutes: 5
   },
   {
-    id: 'ord-102',
-    orderNumber: 'ORD-1002',
-    customer: {
-      name: 'Alexander Wright',
-      phone: '09201234567',
-      address: '321 Ocean Avenue, BGC Taguig',
-      notes: 'Pickup at counter',
-      ewalletNumber: '09201234567',
-      referenceNumber: '99887766554'
-    },
-    items: [
-      {
-        productId: 'prod-5',
-        productName: 'Smoked Turkey & Pesto Panini',
-        unitPrice: 260.00,
-        quantity: 1,
-        subtotal: 260.00
-      },
-      {
-        productId: 'prod-2',
-        productName: 'Vanilla Bean Cold Brew',
-        unitPrice: 175.00,
-        quantity: 1,
-        subtotal: 175.00
-      }
-    ],
-    deliveryType: 'pickup',
-    paymentMethod: 'maya',
-    subtotal: 435.00,
-    tax: 34.80,
-    deliveryFee: 0,
-    total: 469.80,
-    status: 'pending',
-    createdAt: new Date(Date.now() - 5 * 60000).toISOString(),
-    updatedAt: new Date(Date.now() - 5 * 60000).toISOString()
+    id: 'prod-9',
+    name: 'Matcha Strawberry Frappe',
+    category: 'Matcha Frappes',
+    price: 205.00,
+    salePrice: 175.00,
+    isOnSale: true,
+    badge: 'Frozen',
+    description: 'Frozen matcha-strawberry frappe topped with whipped cream.',
+    image: '',
+    available: true,
+    isPopular: true,
+    calories: 300,
+    preparationTimeMinutes: 6
+  },
+  {
+    id: 'prod-10',
+    name: 'Matcha Oreo Frappe',
+    category: 'Matcha Frappes',
+    price: 205.00,
+    salePrice: 175.00,
+    isOnSale: true,
+    badge: 'Frozen',
+    description: 'Frozen ceremonial matcha blended with crushed cookies and cream.',
+    image: '',
+    available: true,
+    isPopular: false,
+    calories: 320,
+    preparationTimeMinutes: 6
   }
 ];
 
-export const INITIAL_NOTIFICATIONS: AdminNotification[] = [
-  {
-    id: 'notif-1',
-    orderId: 'ord-102',
-    orderNumber: 'ORD-1002',
-    customerName: 'Alexander Wright',
-    totalAmount: 469.80,
-    message: 'New order #ORD-1002 placed (₱469.80 via Maya)',
-    createdAt: new Date(Date.now() - 5 * 60000).toISOString(),
-    read: false
-  }
-];
+// No demo/sample orders are seeded — the app starts with an empty order list.
+export const INITIAL_ORDERS: Order[] = [];
+
+// No demo notifications are seeded — the app starts with an empty notification list.
+export const INITIAL_NOTIFICATIONS: AdminNotification[] = [];
 
 export const generateMySQLDump = (): string => {
   return `-- ===================================================
@@ -284,12 +218,9 @@ CREATE TABLE IF NOT EXISTS categories (
 
 -- Seed categories
 INSERT INTO categories (name) VALUES
-('Espresso & Coffee'),
-('Cold Brew & Frappes'),
-('Artisan Teas'),
-('Pastries & Bakery'),
-('Gourmet Paninis'),
-('Desserts');
+('Matcha Classics'),
+('Matcha Fruit Series'),
+('Matcha Frappes');
 
 -- ---------------------------------------------------
 -- 2. Table structure for 'products'
@@ -311,12 +242,16 @@ CREATE TABLE IF NOT EXISTS products (
 
 -- Seed products (Prices in PHP ₱)
 INSERT INTO products (id, name, category_name, price, description, image, available, is_popular, calories, prep_time_mins) VALUES
-('prod-1', 'Avenue Spanish Latte', 'Espresso & Coffee', 165.00, 'Double shot espresso blend with sweet condensed milk swirl.', NULL, 1, 1, 280, 4),
-('prod-2', 'Vanilla Bean Cold Brew', 'Cold Brew & Frappes', 175.00, '18-hour steep dark roast topped with vanilla cold foam.', NULL, 1, 1, 190, 3),
-('prod-3', 'Iced Uji Cream Matcha', 'Artisan Teas', 185.00, 'Ceremonial grade Uji matcha whisked with oat milk.', NULL, 1, 1, 220, 5),
-('prod-4', 'Artisan Butter Croissant', 'Pastries & Bakery', 120.00, 'Flaky French butter croissant freshly baked daily.', NULL, 1, 1, 320, 2),
-('prod-5', 'Smoked Turkey & Pesto Panini', 'Gourmet Paninis', 260.00, 'Smoked turkey, provolone, and basil pesto on sourdough.', NULL, 1, 1, 560, 8),
-('prod-6', 'Basque Burnt Cheesecake', 'Desserts', 195.00, 'Caramelized top cheesecake with molten cream center.', NULL, 1, 0, 410, 2);
+('prod-1', 'Classic Uji Matcha Latte', 'Matcha Classics', 165.00, 'Ceremonial grade Uji matcha whisked with velvety steamed milk.', NULL, 1, 1, 180, 4),
+('prod-2', 'Ceremonial Matcha Cold Foam', 'Matcha Classics', 175.00, 'Iced ceremonial matcha topped with barista sweet cream cold foam.', NULL, 1, 1, 160, 5),
+('prod-3', 'Matcha Strawberry', 'Matcha Fruit Series', 185.00, 'Ceremonial matcha blended with fresh strawberry puree and creamy milk.', NULL, 1, 1, 220, 5),
+('prod-4', 'Matcha Mango', 'Matcha Fruit Series', 185.00, 'Ripe mango puree swirled into smooth ceremonial matcha and milk.', NULL, 1, 1, 210, 5),
+('prod-5', 'Matcha Blueberry', 'Matcha Fruit Series', 185.00, 'Antioxidant-rich blueberry puree layered with ceremonial matcha.', NULL, 1, 1, 200, 5),
+('prod-6', 'Matcha Avocado', 'Matcha Fruit Series', 195.00, 'Silky avocado blended with ceremonial matcha for a rich, creamy treat.', NULL, 1, 1, 260, 6),
+('prod-7', 'Matcha Peach', 'Matcha Fruit Series', 185.00, 'Sweet summer peach puree folded into ceremonial matcha and milk.', NULL, 1, 0, 200, 5),
+('prod-8', 'Matcha Lychee', 'Matcha Fruit Series', 185.00, 'Fragrant lychee blended with ceremonial matcha over ice.', NULL, 1, 0, 190, 5),
+('prod-9', 'Matcha Strawberry Frappe', 'Matcha Frappes', 205.00, 'Frozen matcha-strawberry frappe topped with whipped cream.', NULL, 1, 1, 300, 6),
+('prod-10', 'Matcha Oreo Frappe', 'Matcha Frappes', 205.00, 'Frozen ceremonial matcha blended with crushed cookies and cream.', NULL, 1, 0, 320, 6);
 
 -- ---------------------------------------------------
 -- 3. Table structure for 'orders'
@@ -372,20 +307,7 @@ CREATE TABLE IF NOT EXISTS admin_notifications (
   FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Seed Sample Orders
-INSERT INTO orders (id, order_number, customer_name, customer_phone, customer_address, customer_notes, ewallet_number, reference_number, delivery_type, payment_method, subtotal, tax, delivery_fee, total, status) VALUES
-('ord-101', 'ORD-1001', 'Maria Santos', '09175550192', '742 Evergreen Terrace, Unit 4B', 'Ring bell upon arrival', '09175550192', '10293847561', 'delivery', 'gcash', 570.00, 45.60, 50.00, 665.60, 'preparing'),
-('ord-102', 'ORD-1002', 'Juan Dela Cruz', '09201234567', '321 Ocean Avenue, BGC Taguig', 'Pickup at counter', '09201234567', '99887766554', 'pickup', 'maya', 435.00, 34.80, 0.00, 469.80, 'pending');
-
-INSERT INTO order_items (order_id, product_id, product_name, unit_price, quantity, subtotal, notes) VALUES
-('ord-101', 'prod-1', 'Avenue Spanish Latte', 165.00, 2, 330.00, 'Less sweet'),
-('ord-101', 'prod-4', 'Artisan Butter Croissant', 120.00, 2, 240.00, 'Warmed'),
-('ord-102', 'prod-5', 'Smoked Turkey & Pesto Panini', 260.00, 1, 260.00, NULL),
-('ord-102', 'prod-2', 'Vanilla Bean Cold Brew', 175.00, 1, 175.00, NULL);
-
-INSERT INTO admin_notifications (id, order_id, order_number, customer_name, total_amount, message, is_read) VALUES
-('notif-1', 'ord-101', 'ORD-1001', 'Maria Santos', 665.60, 'New order #ORD-1001 received (₱665.60 via GCash)', 1),
-('notif-2', 'ord-102', 'ORD-1002', 'Juan Dela Cruz', 469.80, 'New order #ORD-1002 received (₱469.80 via Maya)', 0);
+-- No sample/demo orders are seeded — the orders table starts empty.
 
 -- ===================================================
 -- End of Avenue Café MySQL Database Schema
