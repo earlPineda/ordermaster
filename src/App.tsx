@@ -23,7 +23,7 @@ import {
 } from './types';
 import { DEFAULT_STORE_SETTINGS } from './data/initialData';
 import { soundManager } from './utils/audio';
-import { initAuth, googleSignIn, logoutGoogle, getAccessToken } from './services/googleAuth';
+import { initAuth, googleSignIn, logoutGoogle, getAccessToken, handleGoogleRedirectResult, describeGoogleAuthError } from './services/googleAuth';
 import {
   getOrCreateCafeSpreadsheet,
   logOrderToGoogleSheet,
@@ -93,6 +93,7 @@ export default function App() {
   const [googleUser, setGoogleUser] = useState<User | null>(null);
   const [googleAccessToken, setGoogleAccessToken] = useState<string | null>(null);
   const [isGoogleSigningIn, setIsGoogleSigningIn] = useState<boolean>(false);
+  const [googleAuthError, setGoogleAuthError] = useState<string | null>(null);
   const [syncLogs, setSyncLogs] = useState<string[]>([]);
   const [sheetConfig, setSheetConfig] = useState<GoogleSheetsSyncConfig>(() => {
     const saved = localStorage.getItem('avenue_google_sheet_config');
@@ -125,6 +126,35 @@ export default function App() {
     setSyncLogs((prev) => [`[${time}] ${msg}`, ...prev.slice(0, 49)]);
   };
 
+  /** Shared step after any successful Google sign-in: store the session and link/create the spreadsheet. */
+  const completeGoogleSignIn = async (user: User, accessToken: string) => {
+    setGoogleUser(user);
+    setGoogleAccessToken(accessToken);
+    setGoogleAuthError(null);
+    addSyncLog(`Google Sign-In successful: ${user.email}`);
+
+    try {
+      const info = await getOrCreateCafeSpreadsheet(accessToken);
+      saveSheetConfig((prev) => ({
+        ...prev,
+        spreadsheetId: info.id,
+        spreadsheetUrl: info.url,
+        spreadsheetTitle: info.name,
+        lastSyncedAt: new Date().toISOString()
+      }));
+      addSyncLog(
+        info.createdNew
+          ? `Created brand new Google Sheet: "${info.name}"`
+          : `Connected existing Google Sheet: "${info.name}"`
+      );
+    } catch (sheetErr: any) {
+      setGoogleAuthError(
+        `Google account connected, but the spreadsheet could not be created: ${sheetErr.message || 'unknown error'}`
+      );
+      addSyncLog(`Error linking Google Sheet: ${sheetErr.message || 'Unknown error'}`);
+    }
+  };
+
   // Listen to Google Auth state
   useEffect(() => {
     const unsubscribe = initAuth(
@@ -139,6 +169,28 @@ export default function App() {
       }
     );
     return () => unsubscribe();
+  }, []);
+
+  // Finish a Google sign-in that used the redirect flow (used when the popup was blocked).
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const result = await handleGoogleRedirectResult();
+        if (result && !cancelled) {
+          await completeGoogleSignIn(result.user, result.accessToken);
+        }
+      } catch (err: any) {
+        if (!cancelled) {
+          const message = describeGoogleAuthError(err);
+          setGoogleAuthError(message);
+          addSyncLog(`Google Sign-In error: ${message}`);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -251,35 +303,22 @@ export default function App() {
   // Google Sheets Action Handlers
   const handleGoogleSignIn = async () => {
     setIsGoogleSigningIn(true);
+    setGoogleAuthError(null);
     try {
       const result = await googleSignIn();
       if (result) {
-        setGoogleUser(result.user);
-        setGoogleAccessToken(result.accessToken);
-        addSyncLog(`Google Sign-In successful: ${result.user.email}`);
-
-        // Automatically connect or create the Avenue Café Spreadsheet
-        try {
-          const info = await getOrCreateCafeSpreadsheet(result.accessToken);
-          saveSheetConfig((prev) => ({
-            ...prev,
-            spreadsheetId: info.id,
-            spreadsheetUrl: info.url,
-            spreadsheetTitle: info.name,
-            lastSyncedAt: new Date().toISOString()
-          }));
-          addSyncLog(
-            info.createdNew
-              ? `Created brand new Google Sheet: "${info.name}"`
-              : `Connected existing Google Sheet: "${info.name}"`
-          );
-        } catch (sheetErr: any) {
-          addSyncLog(`Error linking Google Sheet: ${sheetErr.message || 'Unknown error'}`);
-        }
+        await completeGoogleSignIn(result.user, result.accessToken);
+      } else {
+        // No error: either the user closed the popup, or we are being redirected.
+        addSyncLog(
+          'Google sign-in popup was closed or blocked - allow popups for this site (or finish the full-page authorization) and try again.'
+        );
       }
     } catch (err: any) {
       console.error('Google Sign In failed:', err);
-      addSyncLog(`Google Sign-In error: ${err.message || 'Authorization failed'}`);
+      const message = describeGoogleAuthError(err);
+      setGoogleAuthError(message);
+      addSyncLog(`Google Sign-In error: ${message}`);
     } finally {
       setIsGoogleSigningIn(false);
     }
@@ -290,6 +329,7 @@ export default function App() {
       await logoutGoogle();
       setGoogleUser(null);
       setGoogleAccessToken(null);
+      setGoogleAuthError(null);
       addSyncLog('Google account disconnected.');
     } catch (err) {
       console.error(err);
@@ -763,6 +803,7 @@ export default function App() {
               onSyncMenuCatalog={handleSyncMenuCatalog}
               onToggleAutoSync={handleToggleAutoSync}
               syncLogs={syncLogs}
+              googleAuthError={googleAuthError}
             />
           )
         )}

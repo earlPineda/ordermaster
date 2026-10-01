@@ -115,6 +115,7 @@ interface AdminDashboardProps {
   onSyncMenuCatalog?: () => Promise<void>;
   onToggleAutoSync?: () => void;
   syncLogs?: string[];
+  googleAuthError?: string | null;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
@@ -157,7 +158,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onSyncAllOrders = async () => {},
   onSyncMenuCatalog = async () => {},
   onToggleAutoSync = () => {},
-  syncLogs = []
+  syncLogs = [],
+  googleAuthError = null
 }) => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'orders' | 'menu' | 'customer' | 'analytics' | 'customizer' | 'promotions' | 'sheets' | 'database' | 'notifications' | 'meta-ai'>('dashboard');
   const [activeDashboardSub, setActiveDashboardSub] = useState<'1' | '2' | '3'>('1');
@@ -2055,6 +2057,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 onSyncMenuCatalog={onSyncMenuCatalog}
                 onToggleAutoSync={onToggleAutoSync}
                 syncLogs={syncLogs}
+                authError={googleAuthError}
               />
             )}
 

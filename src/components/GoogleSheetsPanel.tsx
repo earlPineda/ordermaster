@@ -34,6 +34,7 @@ interface GoogleSheetsPanelProps {
   onSyncMenuCatalog: () => Promise<void>;
   onToggleAutoSync: () => void;
   syncLogs: string[];
+  authError?: string | null;
 }
 
 export const GoogleSheetsPanel: React.FC<GoogleSheetsPanelProps> = ({
@@ -49,7 +50,8 @@ export const GoogleSheetsPanel: React.FC<GoogleSheetsPanelProps> = ({
   onSyncAllOrders,
   onSyncMenuCatalog,
   onToggleAutoSync,
-  syncLogs
+  syncLogs,
+  authError = null
 }) => {
   const [isConnectingSheet, setIsConnectingSheet] = useState(false);
   const [isSyncingOrders, setIsSyncingOrders] = useState(false);
@@ -207,6 +209,87 @@ export const GoogleSheetsPanel: React.FC<GoogleSheetsPanelProps> = ({
                 </button>
               </div>
             )}
+
+            {/* Google sign-in / spreadsheet error */}
+            {authError && (
+              <div className="bg-red-50 border border-red-200 p-3.5 rounded-xl space-y-1.5">
+                <p className="text-xs font-bold text-red-800 flex items-center gap-1.5">
+                  <AlertCircle className="w-4 h-4" /> Connection problem
+                </p>
+                <p className="text-[11px] text-red-700 leading-relaxed">{authError}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Setup & Troubleshooting */}
+          <div className="bg-white p-5 rounded-2xl border border-stone-200 space-y-3 shadow-xs">
+            <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-600" /> Setup &amp; Troubleshooting
+            </h3>
+            <p className="text-[11px] text-stone-500 leading-relaxed">
+              Google sign-in needs three one-time settings in your Firebase / Google Cloud consoles. If signing in
+              fails, work through these in order:
+            </p>
+
+            <ol className="space-y-3 text-[11px] text-stone-700 list-decimal pl-4">
+              <li>
+                <span className="font-semibold text-stone-900">Authorize this site in Firebase</span>{' '}
+                (fixes <code className="font-mono text-red-700">auth/unauthorized-domain</code>). Add this exact
+                origin under{' '}
+                <a
+                  href="https://console.firebase.google.com/project/vaulted-glow-7xctm/authentication/settings"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-600 font-semibold hover:underline"
+                >
+                  Authentication → Settings → Authorized domains
+                </a>
+                :
+                <span className="block mt-1 font-mono bg-stone-50 border border-stone-200 rounded px-2 py-1 text-stone-800 select-all break-all">
+                  {typeof window !== 'undefined' ? window.location.origin : ''}
+                </span>
+              </li>
+
+              <li>
+                <span className="font-semibold text-stone-900">Enable the Google sign-in provider</span> under{' '}
+                <a
+                  href="https://console.firebase.google.com/project/vaulted-glow-7xctm/authentication/providers"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-600 font-semibold hover:underline"
+                >
+                  Authentication → Sign-in method → Google
+                </a>
+                . While the OAuth consent screen is set to <strong>Testing</strong>, also add your Google account as
+                a <strong>Test user</strong>.
+              </li>
+
+              <li>
+                <span className="font-semibold text-stone-900">Request the Sheets + Drive scopes</span> so the app can
+                create and update your order spreadsheet. Add both scopes on the{' '}
+                <a
+                  href="https://console.cloud.google.com/apis/credentials/consent/edit"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-600 font-semibold hover:underline"
+                >
+                  OAuth consent screen → Scopes
+                </a>
+                :
+                <span className="block mt-1 font-mono bg-stone-50 border border-stone-200 rounded px-2 py-1 text-stone-800 break-all">
+                  https://www.googleapis.com/auth/spreadsheets
+                </span>
+                <span className="block mt-1 font-mono bg-stone-50 border border-stone-200 rounded px-2 py-1 text-stone-800 break-all">
+                  https://www.googleapis.com/auth/drive.file
+                </span>
+              </li>
+            </ol>
+
+            <p className="text-[11px] text-stone-500 leading-relaxed border-t border-stone-100 pt-2.5">
+              Still stuck? Open the browser console (F12), click <strong>Sign in with Google</strong> and copy the{' '}
+              <code className="font-mono">auth/...</code> error code - the common ones map directly to the fixes
+              above.
+            </p>
           </div>
 
           {/* Step 2: Spreadsheet Connection */}
