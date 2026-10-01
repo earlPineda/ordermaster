@@ -197,8 +197,19 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
 
       {/* Hero Section */}
       <div className="relative bg-white border-b border-stone-200 py-10 sm:py-14 px-4 sm:px-6 lg:px-8 overflow-hidden">
-        {/* Ambient warm gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-amber-50/50 via-white to-white pointer-events-none" />
+        {/* Custom hero banner image (admin -> Store Customizer -> Hero Banner Background) */}
+        {storeSettings.heroImage ? (
+          <>
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url("${storeSettings.heroImage}")` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-white via-white/85 to-white/50 pointer-events-none" />
+          </>
+        ) : (
+          /* Ambient warm gradient background */
+          <div className="absolute inset-0 bg-gradient-to-b from-amber-50/50 via-white to-white pointer-events-none" />
+        )}
         
         <div className="max-w-7xl mx-auto relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
           <div className="max-w-2xl text-center lg:text-left">

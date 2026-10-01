@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Sparkles,
   Save,
@@ -21,10 +21,12 @@ import {
   Percent,
   Star,
   ExternalLink,
-  Flame
+  Flame,
+  Upload
 } from 'lucide-react';
 import { StoreSettings } from '../types';
 import { formatPeso } from '../utils/format';
+import { MATCHA_AVENUE_LOGO } from '../assets/logo';
 
 interface StoreCustomizerPanelProps {
   settings: StoreSettings;
@@ -44,6 +46,30 @@ export const StoreCustomizerPanel: React.FC<StoreCustomizerPanelProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [newCategoryInput, setNewCategoryInput] = useState('');
+
+  const logoFileRef = useRef<HTMLInputElement>(null);
+  const heroFileRef = useRef<HTMLInputElement>(null);
+
+  /** Reads an uploaded image file into a base64 data URL and stores it on the settings. */
+  const handleImageUpload = (file: File, field: 'logoUrl' | 'heroImage') => {
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file (JPG, PNG, WEBP, GIF, SVG).');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Please choose an image smaller than 2 MB so the storefront stays fast.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      if (!result) return;
+      setFormData((prev) =>
+        field === 'logoUrl' ? { ...prev, logoUrl: result } : { ...prev, heroImage: result }
+      );
+    };
+    reader.readAsDataURL(file);
+  };
 
   useEffect(() => {
     setFormData({ ...settings });
@@ -281,36 +307,82 @@ export const StoreCustomizerPanel: React.FC<StoreCustomizerPanelProps> = ({
               <span className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
                 <Sparkles className="w-4 h-4 text-amber-700" /> Store Imagery Sources
               </span>
-              <span className="text-[10px] text-stone-400 font-mono">Image URLs</span>
+              <span className="text-[10px] text-stone-400 font-mono">Upload or URL</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="block text-[11px] font-semibold text-stone-700">
-                  Store Logo Image Source (src):
-                </label>
+                <div className="flex items-center justify-between gap-2">
+                  <label className="block text-[11px] font-semibold text-stone-700">
+                    Store Logo Image Source (src):
+                  </label>
+                  <span className="text-[10px] font-mono text-stone-400">
+                    {formData.logoUrl
+                      ? formData.logoUrl.startsWith('data:')
+                        ? 'Uploaded file'
+                        : 'Custom URL'
+                      : 'Default brand logo'}
+                  </span>
+                </div>
                 <div className="flex gap-2.5 items-center">
                   <div className="w-12 h-12 rounded-xl bg-white border border-stone-200 overflow-hidden shrink-0 flex items-center justify-center">
                     {formData.logoUrl ? (
                       <img src={formData.logoUrl} alt="Logo" className="w-full h-full object-cover" />
                     ) : (
-                      <Coffee className="w-6 h-6 text-amber-700" />
+                      <img src={MATCHA_AVENUE_LOGO} alt="Default logo" className="w-full h-full object-cover" />
                     )}
                   </div>
                   <input
                     type="text"
-                    value={formData.logoUrl || ''}
+                    value={formData.logoUrl && !formData.logoUrl.startsWith('data:') ? formData.logoUrl : ''}
                     onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
                     placeholder="https://... or /logo.png"
                     className="flex-1 bg-white text-stone-900 px-3 py-2 rounded-lg border border-stone-200 text-xs font-mono focus:outline-none focus:border-amber-600"
                   />
                 </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => logoFileRef.current?.click()}
+                    className="px-2.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs"
+                  >
+                    <Upload className="w-3.5 h-3.5" /> Upload Logo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, logoUrl: '' })}
+                    className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-stone-100 text-stone-600 text-[11px] font-semibold flex items-center gap-1.5 border border-stone-200 cursor-pointer transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" /> Use Default
+                  </button>
+                  <span className="text-[10px] text-stone-400">PNG / JPG / SVG · square works best · under 2 MB</span>
+                </div>
+                <input
+                  ref={logoFileRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleImageUpload(file, 'logoUrl');
+                    e.target.value = '';
+                  }}
+                />
               </div>
 
               <div className="space-y-2">
-                <label className="block text-[11px] font-semibold text-stone-700">
-                  Hero Banner Background (src):
-                </label>
+                <div className="flex items-center justify-between gap-2">
+                  <label className="block text-[11px] font-semibold text-stone-700">
+                    Hero Banner Background (src):
+                  </label>
+                  <span className="text-[10px] font-mono text-stone-400">
+                    {formData.heroImage
+                      ? formData.heroImage.startsWith('data:')
+                        ? 'Uploaded file'
+                        : 'Custom URL'
+                      : 'Default banner'}
+                  </span>
+                </div>
                 <div className="flex gap-2.5 items-center">
                   <div className="w-16 h-12 rounded-xl bg-white border border-stone-200 overflow-hidden shrink-0">
                     <img
@@ -321,12 +393,40 @@ export const StoreCustomizerPanel: React.FC<StoreCustomizerPanelProps> = ({
                   </div>
                   <input
                     type="text"
-                    value={formData.heroImage || ''}
+                    value={formData.heroImage && !formData.heroImage.startsWith('data:') ? formData.heroImage : ''}
                     onChange={(e) => setFormData({ ...formData, heroImage: e.target.value })}
                     placeholder="https://images.unsplash.com/photo-..."
                     className="flex-1 bg-white text-stone-900 px-3 py-2 rounded-lg border border-stone-200 text-xs font-mono focus:outline-none focus:border-amber-600"
                   />
                 </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => heroFileRef.current?.click()}
+                    className="px-2.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs"
+                  >
+                    <Upload className="w-3.5 h-3.5" /> Upload Banner
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, heroImage: '' })}
+                    className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-stone-100 text-stone-600 text-[11px] font-semibold flex items-center gap-1.5 border border-stone-200 cursor-pointer transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" /> Use Default
+                  </button>
+                  <span className="text-[10px] text-stone-400">Wide (e.g. 1600×600) · under 2 MB</span>
+                </div>
+                <input
+                  ref={heroFileRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleImageUpload(file, 'heroImage');
+                    e.target.value = '';
+                  }}
+                />
               </div>
             </div>
           </div>
