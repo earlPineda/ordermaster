@@ -48,7 +48,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [custLandmark, setCustLandmark] = useState(customerProfile?.landmark || '');
 
   // Admin Form State
-  const [adminUsername, setAdminUsername] = useState('admin');
+  const [adminUsername, setAdminUsername] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
 
   const [errorMsg, setErrorMsg] = useState('');
@@ -309,7 +309,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <input
                     type="text"
                     required
-                    placeholder="e.g. admin"
+                    placeholder="Admin username"
                     value={adminUsername}
                     onChange={(e) => setAdminUsername(e.target.value)}
                     className="w-full bg-stone-50 text-xs text-stone-900 placeholder-stone-400 pl-9 pr-3 py-2 rounded-lg border border-stone-200 focus:outline-none focus:border-amber-600 focus:bg-white"
@@ -324,7 +324,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <input
                     type="password"
                     required
-                    placeholder="Enter admin password (default: admin123)"
+                    placeholder="Enter admin password"
                     value={adminPassword}
                     onChange={(e) => setAdminPassword(e.target.value)}
                     className="w-full bg-stone-50 text-xs text-stone-900 placeholder-stone-400 pl-9 pr-3 py-2 rounded-lg border border-stone-200 focus:outline-none focus:border-amber-600 focus:bg-white"

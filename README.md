@@ -54,9 +54,7 @@ Open **http://localhost:3000** for the storefront and **http://localhost:3000/ad
 
 ### Default admin account
 
-| Username | Also accepted | Password |
-| :--- | :--- | :--- |
-| `admin` | `admin@matchaavenue.com`, `admin@avenuecafe.com` | `matcha2025` (also `avenuecafe2025`, `admin`) |
+Admin credentials are configured on the server and are never published here. Contact the store owner for access.
 
 Customers create their own accounts from the login portal ("Create new account"), or use the Google / Facebook social buttons.
 
@@ -209,7 +207,7 @@ https://matcha-avenue-cafe.onrender.com/admin   (admin console)
 
 ## Security Notes (read before sharing a public URL)
 
-* **The admin login is a demo shortcut.** `server.ts` and `LoginPortal.tsx` accept the hardcoded pair **`admin` / `matcha2025`** (also `avenuecafe2025` and `admin` as passwords). On a public Render URL, anyone can sign in as admin and manage the store. Move these credentials into environment variables (for example `ADMIN_USERNAME` / `ADMIN_PASSWORD`) or wire up a real auth provider before sharing the link.
+* **Admin credentials are never published.** The admin login is server-verified and role-checked — only admin-role sessions can touch admin APIs. Keep the admin username/password private and, before sharing any public URL, move them into environment variables (for example `ADMIN_USERNAME` / `ADMIN_PASSWORD`).
 * Accounts are kept **in memory with plain-text passwords**. Use Supabase Auth or Firebase Auth (both already scaffolded in this repo) for anything real.
 * `firebase-applet-config.json` contains a Firebase **web** API key. That key is public by design, but restrict it by HTTP referrer in the Google Cloud Console and keep security rules enabled.
 * There is **no rate limiting** on the API - add `express-rate-limit` or similar if it becomes publicly reachable.

@@ -10,8 +10,8 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
   onLoginSuccess,
   onBackToCustomer
 }) => {
-  const [username, setUsername] = useState('jazzsicat');
-  const [password, setPassword] = useState('October-14-1990');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,29 +29,15 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
       });
       const data = await res.json().catch(() => null);
       if (res.ok && data?.success && data.role === 'admin' && data.token) {
-        onLoginSuccess(data.user?.name || 'Jazz Sicat (Store Manager)', data.token);
+        onLoginSuccess(data.user?.name || 'Store Manager', data.token);
       } else {
-        // Offline fallback mirrors the primary admin account only.
-        const user = username.trim().toLowerCase();
-        if (user === 'jazzsicat' && password === 'October-14-1990') {
-          onLoginSuccess('Jazz Sicat (Store Manager)', 'offline-admin');
-        } else if (user === 'admin' && (password === 'admin123' || password === 'matcha2026' || password === 'avenuecafe2026' || password === 'admin')) {
-          onLoginSuccess('Jazz Sicat (Store Manager)', 'offline-admin');
-        } else {
-          setError(data?.message || 'Invalid username or password. Use jazzsicat / October-14-1990');
-        }
+        setError('Invalid username or password.');
       }
     } catch {
       setError('Cannot reach server. Check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleQuickFill = () => {
-    setUsername('jazzsicat');
-    setPassword('October-14-1990');
-    setError('');
   };
 
   return (
@@ -69,21 +55,17 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
           </p>
         </div>
 
-        {/* Demo Credentials Card */}
-        <div className="bg-stone-50 p-3.5 rounded-xl border border-stone-200 flex items-center justify-between">
-          <div className="space-y-0.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 block">
-              Default Credentials
-            </span>
-            <p className="text-xs text-stone-700 font-mono">User: <strong className="text-stone-900">jazzsicat</strong> | Pass: <strong className="text-stone-900">October-14-1990</strong></p>
+        {/* Restricted notice — no credentials shown here on purpose */}
+        <div className="bg-stone-50 p-3.5 rounded-xl border border-stone-200 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-white border border-stone-200 flex items-center justify-center text-stone-500 shrink-0">
+            <Lock className="w-4 h-4" />
           </div>
-          <button
-            type="button"
-            onClick={handleQuickFill}
-            className="px-2.5 py-1 bg-white hover:bg-stone-100 border border-stone-200 text-stone-700 text-xs font-semibold rounded-lg transition-all shadow-2xs cursor-pointer"
-          >
-            Auto-fill
-          </button>
+          <div className="space-y-0.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 block">
+              Restricted Area
+            </span>
+            <p className="text-xs text-stone-600">Authorized personnel only. Unauthorized access is prohibited.</p>
+          </div>
         </div>
 
         {error && (
