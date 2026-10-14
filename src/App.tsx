@@ -69,22 +69,92 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Admin Account Authentication State (Admin is the only login account)
-  const [isAdminAuth, setIsAdminAuth] = useState<boolean>(() => {
-    return localStorage.getItem('avenue_admin_authenticated') === 'true';
+  // Admin Account Authentication State — token-based, verified server-side.
+  // Old `avenue_admin_authenticated=true` flags are NOT trusted anymore (any
+  // customer could set that in DevTools). The server must confirm role=admin.
+  const [adminToken, setAdminToken] = useState<string | null>(() => {
+    return localStorage.getItem('avenue_admin_token');
   });
+  const [isAdminAuth, setIsAdminAuth] = useState<boolean>(false);
+  const [isVerifyingAdmin, setIsVerifyingAdmin] = useState<boolean>(true);
   const [adminUser, setAdminUser] = useState<string>('Default Admin');
 
-  const handleAdminLoginSuccess = (userName: string) => {
+  /** All admin-only API calls must carry the admin token. Customers' tokens are rejected (403). */
+  const adminHeaders = (extra: Record<string, string> = {}): Record<string, string> => {
+    const headers: Record<string, string> = { ...extra };
+    if (adminToken) headers['Authorization'] = `Bearer ${adminToken}`;
+    return headers;
+  };
+
+  /** Verifies the stored token with the server. Customers / forged tokens fail closed. */
+  const verifyAdminSession = async (token: string | null): Promise<boolean> => {
+    if (!token) {
+      setIsAdminAuth(false);
+      return false;
+    }
+    try {
+      const res = await fetch('/api/auth/session', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        setIsAdminAuth(false);
+        return false;
+      }
+      const data = await res.json();
+      if (data.success && data.authenticated && data.role === 'admin') {
+        setIsAdminAuth(true);
+        if (data.user?.name) setAdminUser(data.user.name);
+        return true;
+      }
+      setIsAdminAuth(false);
+      return false;
+    } catch {
+      // Offline / server down: fail closed (stay logged out) for safety.
+      setIsAdminAuth(false);
+      return false;
+    }
+  };
+
+  // Verify admin session on load (replaces trusting a localStorage boolean).
+  useEffect(() => {
+    (async () => {
+      setIsVerifyingAdmin(true);
+      const ok = await verifyAdminSession(adminToken);
+      if (!ok && adminToken) {
+        localStorage.removeItem('avenue_admin_token');
+        setAdminToken(null);
+      }
+      setIsVerifyingAdmin(false);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleAdminLoginSuccess = (userName: string, token?: string) => {
+    if (token) {
+      localStorage.setItem('avenue_admin_token', token);
+      setAdminToken(token);
+    }
     setIsAdminAuth(true);
     setAdminUser(userName);
-    localStorage.setItem('avenue_admin_authenticated', 'true');
     setActiveView('admin');
     soundManager.playClick();
   };
 
-  const handleLogoutAdmin = () => {
+  const handleLogoutAdmin = async () => {
+    try {
+      if (adminToken) {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${adminToken}` }
+        });
+      }
+    } catch {
+      // ignore logout network errors
+    }
     setIsAdminAuth(false);
+    setAdminToken(null);
+    localStorage.removeItem('avenue_admin_token');
+    // Remove legacy flag too — it no longer grants anything.
     localStorage.removeItem('avenue_admin_authenticated');
     setActiveView('customer');
   };
@@ -239,14 +309,20 @@ export default function App() {
     soundManager.setSoundEnabled(soundEnabled);
   }, [soundEnabled]);
 
-  // Initial Fetch Data
+  // Initial Fetch Data — public reads stay public; admin-only reads attach
+  // the admin token (customers simply get 403 and keep public data).
   const fetchAllData = async () => {
     try {
+      const authHeader: Record<string, string> = {};
+      try {
+        const stored = localStorage.getItem('avenue_admin_token');
+        if (stored) authHeader['Authorization'] = `Bearer ${stored}`;
+      } catch { /* ignore */ }
       const [menuRes, ordersRes, notifRes, statsRes, settingsRes] = await Promise.all([
         fetch('/api/menu'),
         fetch('/api/orders'),
-        fetch('/api/notifications'),
-        fetch('/api/admin/stats'),
+        fetch('/api/notifications', { headers: authHeader }),
+        fetch('/api/admin/stats', { headers: authHeader }),
         fetch('/api/settings')
       ]);
 
@@ -478,13 +554,13 @@ export default function App() {
     }
   };
 
-  // Admin Actions
+  // Admin Actions (all carry the admin token — server rejects customers with 403)
   const handleUpdateOrderStatus = async (orderId: string, status: OrderStatus) => {
     soundManager.playClick();
     try {
       const res = await fetch(`/api/orders/${orderId}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: adminHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ status })
       });
       if (res.ok) {
@@ -524,7 +600,8 @@ export default function App() {
     }
     try {
       const res = await fetch(`/api/orders/${orderId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: adminHeaders()
       });
       if (res.ok) {
         fetchAllData();
@@ -543,7 +620,7 @@ export default function App() {
     try {
       const res = await fetch('/api/menu', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: adminHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(productData)
       });
       if (res.ok) fetchAllData();
@@ -561,7 +638,7 @@ export default function App() {
     try {
       const res = await fetch(`/api/menu/${product.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: adminHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(product)
       });
       if (res.ok) {
@@ -602,7 +679,7 @@ export default function App() {
     try {
       const res = await fetch('/api/menu/reset-discounts', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: adminHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ category, productId })
       });
       if (res.ok) {
@@ -642,7 +719,7 @@ export default function App() {
     try {
       const res = await fetch('/api/menu/apply-batch-discount', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: adminHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ category, discountPercent: pct })
       });
       if (res.ok) {
@@ -660,7 +737,8 @@ export default function App() {
   const handleDeleteProduct = async (productId: string) => {
     try {
       const res = await fetch(`/api/menu/${productId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: adminHeaders()
       });
       if (res.ok) fetchAllData();
     } catch (err) {
@@ -670,7 +748,7 @@ export default function App() {
 
   const handleMarkNotificationsRead = async () => {
     try {
-      await fetch('/api/notifications/read', { method: 'POST' });
+      await fetch('/api/notifications/read', { method: 'POST', headers: adminHeaders() });
       setUnreadCount(0);
       fetchAllData();
     } catch (err) {
@@ -681,7 +759,7 @@ export default function App() {
   const handleSaveStoreSettings = async (updated: StoreSettings) => {
     const res = await fetch('/api/settings', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: adminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(updated)
     });
     if (!res.ok) {
@@ -689,7 +767,9 @@ export default function App() {
       throw new Error(
         res.status === 413
           ? 'Image too large for server. Try a smaller file (under 2 MB) or a URL.'
-          : `Save failed (server ${res.status}). ${text.slice(0, 120)}`
+          : res.status === 403
+            ? 'Admin access only. Please sign in with an admin account.'
+            : `Save failed (server ${res.status}). ${text.slice(0, 120)}`
       );
     }
     const result = await res.json();
@@ -702,7 +782,7 @@ export default function App() {
 
   const handleResetStoreSettings = async () => {
     try {
-      const res = await fetch('/api/settings/reset', { method: 'POST' });
+      const res = await fetch('/api/settings/reset', { method: 'POST', headers: adminHeaders() });
       if (res.ok) {
         const result = await res.json();
         if (result.success && result.data) {
@@ -767,7 +847,14 @@ export default function App() {
         )}
 
         {activeView === 'admin' && (
-          !isAdminAuth ? (
+          isVerifyingAdmin ? (
+            <div className="min-h-[60vh] flex items-center justify-center px-4">
+              <div className="text-center space-y-2">
+                <p className="text-sm font-bold text-stone-700">Verifying admin access…</p>
+                <p className="text-xs text-stone-500">Checking your session with the server.</p>
+              </div>
+            </div>
+          ) : !isAdminAuth ? (
             <AdminLogin
               onLoginSuccess={handleAdminLoginSuccess}
               onBackToCustomer={() => setActiveView('customer')}

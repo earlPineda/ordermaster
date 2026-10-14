@@ -24,7 +24,7 @@ import { MATCHA_AVENUE_LOGO } from '../assets/logo';
 
 interface LoginPortalProps {
   onCustomerLogin: (profile: CustomerProfile) => void;
-  onAdminLogin: (adminName: string) => void;
+  onAdminLogin: (adminName: string, token: string) => void;
 }
 
 export const LoginPortal: React.FC<LoginPortalProps> = ({
@@ -72,24 +72,29 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({
       const data = await res.json();
       if (res.ok && data.success) {
         if (data.role === 'admin') {
-          onAdminLogin(data.user?.name || 'Store Manager');
+          // Admin tab only: a CUSTOMER account that guesses the admin tab gets
+          // role=customer here and is blocked — no admin token is issued.
+          if (portalMode !== 'admin') {
+            setErrorMsg('That account is a customer account. Use the Admin tab with an admin login.');
+          } else if (!data.token) {
+            setErrorMsg('Admin session could not be created. Try again.');
+          } else {
+            onAdminLogin(data.user?.name || 'Jazz Sicat (Store Manager)', data.token);
+          }
         } else {
-          onCustomerLogin(data.user);
+          // Customer tab only: an admin trying the customer tab is redirected.
+          if (portalMode === 'admin') {
+            setErrorMsg('That is a customer account and cannot access Admin. Please use your admin login.');
+          } else {
+            onCustomerLogin(data.user);
+          }
         }
       } else {
         setErrorMsg(data.message || 'The credentials you entered are incorrect.');
       }
     } catch {
-      // Direct Admin shortcut check (primary: jazzsicat; legacy admin kept as fallback)
-      if (
-        (emailOrPhone.trim().toLowerCase() === 'jazzsicat' && password.trim() === 'October-14-1990') ||
-        ((emailOrPhone.toLowerCase() === 'admin' || emailOrPhone.includes('admin')) &&
-          (password === 'avenuecafe2025' || password === 'admin'))
-      ) {
-        onAdminLogin('Jazz Sicat (Store Manager)');
-      } else {
-        setErrorMsg('Invalid login credentials. If you do not have an account, click "Create new account" below.');
-      }
+      // No offline admin bypass here — without the server we cannot verify roles.
+      setErrorMsg('Cannot reach server. Check your connection and try again.');
     } finally {
       setIsLoading(false);
     }

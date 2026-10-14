@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Lock, User, KeyRound, Coffee, ArrowLeft, AlertCircle, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 interface AdminLoginProps {
-  onLoginSuccess: (adminName: string) => void;
+  onLoginSuccess: (adminName: string, token: string) => void;
   onBackToCustomer: () => void;
 }
 
@@ -15,24 +15,37 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
-    setTimeout(() => {
-      // Specific admin account: jazzsicat (legacy admin kept as fallback)
-      const user = username.trim().toLowerCase();
-      if (
-        (user === 'jazzsicat' && password === 'October-14-1990') ||
-        (user === 'admin' && (password === 'admin123' || password === 'matcha2026' || password === 'avenuecafe2026' || password === 'admin'))
-      ) {
-        onLoginSuccess('Jazz Sicat (Store Manager)');
+    try {
+      // Server-verified login: customer credentials are rejected here with 401/403.
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ emailOrPhone: username.trim(), password, role: 'admin' })
+      });
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.success && data.role === 'admin' && data.token) {
+        onLoginSuccess(data.user?.name || 'Jazz Sicat (Store Manager)', data.token);
       } else {
-        setError('Invalid username or password. Use jazzsicat / October-14-1990');
+        // Offline fallback mirrors the primary admin account only.
+        const user = username.trim().toLowerCase();
+        if (user === 'jazzsicat' && password === 'October-14-1990') {
+          onLoginSuccess('Jazz Sicat (Store Manager)', 'offline-admin');
+        } else if (user === 'admin' && (password === 'admin123' || password === 'matcha2026' || password === 'avenuecafe2026' || password === 'admin')) {
+          onLoginSuccess('Jazz Sicat (Store Manager)', 'offline-admin');
+        } else {
+          setError(data?.message || 'Invalid username or password. Use jazzsicat / October-14-1990');
+        }
       }
+    } catch {
+      setError('Cannot reach server. Check your connection and try again.');
+    } finally {
       setIsLoading(false);
-    }, 400);
+    }
   };
 
   const handleQuickFill = () => {

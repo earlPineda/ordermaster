@@ -217,6 +217,78 @@ app.get('/api/auth/recent-users', (req: Request, res: Response) => {
   res.json({ success: true, users: customerUsers });
 });
 
+// ==========================================
+// AUTH SESSION STORE + ADMIN GATE
+// Only admin-role sessions may touch admin-only routes.
+// Tokens are random, role-bound, and expire after 12 hours.
+// ==========================================
+interface AuthSession {
+  token: string;
+  userId: string;
+  role: 'customer' | 'admin';
+  expiresAt: number;
+}
+
+const ADMIN_SESSION_TTL_MS = 12 * 60 * 60 * 1000;
+const authSessions = new Map<string, AuthSession>();
+
+function issueSessionToken(userId: string, role: 'customer' | 'admin'): string {
+  const rand = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+  const token = `${role}-${Date.now().toString(36)}-${rand}`;
+  authSessions.set(token, { token, userId, role, expiresAt: Date.now() + ADMIN_SESSION_TTL_MS });
+  return token;
+}
+
+function getSessionFromRequest(req: Request): AuthSession | null {
+  const header = (req.headers.authorization || '').trim();
+  const bearer = header.toLowerCase().startsWith('bearer ') ? header.slice(7).trim() : '';
+  const token = bearer || (req.body as any)?.adminToken || (req.query as any)?.adminToken || '';
+  if (!token || typeof token !== 'string') return null;
+  const session = authSessions.get(token);
+  if (!session) return null;
+  if (session.expiresAt < Date.now()) {
+    authSessions.delete(token);
+    return null;
+  }
+  return session;
+}
+
+/** Blocks non-admin callers from admin-only routes. Customers get 403 even if logged in. */
+function requireAdmin(req: Request, res: Response, next: () => void) {
+  const session = getSessionFromRequest(req);
+  if (!session || session.role !== 'admin') {
+    res.status(403).json({ success: false, message: 'Admin access only. Please sign in with an admin account.' });
+    return;
+  }
+  // Refresh sliding expiry on each admin action.
+  session.expiresAt = Date.now() + ADMIN_SESSION_TTL_MS;
+  (req as any).adminSession = session;
+  next();
+}
+
+// GET Verify current session role (used by the Admin gate on page load)
+app.get('/api/auth/session', (req: Request, res: Response) => {
+  const session = getSessionFromRequest(req);
+  if (!session) {
+    res.json({ success: true, authenticated: false, role: null });
+    return;
+  }
+  const user = usersStore.find((u) => u.id === session.userId);
+  res.json({
+    success: true,
+    authenticated: true,
+    role: session.role,
+    user: user ? { id: user.id, name: user.name, email: user.email, role: session.role, avatar: user.avatar } : null
+  });
+});
+
+// POST Admin logout (revokes the token server-side)
+app.post('/api/auth/logout', (req: Request, res: Response) => {
+  const session = getSessionFromRequest(req);
+  if (session) authSessions.delete(session.token);
+  res.json({ success: true, message: 'Signed out.' });
+});
+
 // POST Login (Email / Phone / Username + Password)
 app.post('/api/auth/login', (req: Request, res: Response) => {
   const { emailOrPhone, username, password, role } = req.body;
@@ -247,7 +319,7 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
       success: true,
       message: 'Admin authentication successful.',
       role: 'admin',
-      token: `token-${Date.now()}`,
+      token: issueSessionToken(adminUser.id, 'admin'),
       user: {
         id: adminUser.id,
         name: adminUser.name,
@@ -305,7 +377,7 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
     success: true,
     message: `Welcome back, ${user.name}!`,
     role: user.role,
-    token: `session-${Date.now()}`,
+    token: issueSessionToken(user.id, user.role),
     user: profile
   });
 });
@@ -403,7 +475,7 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
     success: true,
     message: 'Account created successfully! Welcome to Avenue Café.',
     role: 'customer',
-    token: `session-${Date.now()}`,
+    token: issueSessionToken(newId, 'customer'),
     user: profile
   });
 });
@@ -456,7 +528,7 @@ app.post('/api/auth/social', (req: Request, res: Response) => {
     success: true,
     message: `Signed in with ${socialProvider === 'facebook' ? 'Facebook' : 'Google'}. Welcome, ${userName}!`,
     role: 'customer',
-    token: `social-session-${Date.now()}`,
+    token: issueSessionToken(user.id, 'customer'),
     user: profile
   });
 });
@@ -525,8 +597,8 @@ app.get('/api/menu', (req: Request, res: Response) => {
   });
 });
 
-// POST Add Menu Product (Admin)
-app.post('/api/menu', (req: Request, res: Response) => {
+// POST Add Menu Product (Admin only — customers blocked by requireAdmin)
+app.post('/api/menu', requireAdmin, (req: Request, res: Response) => {
   const {
     name,
     category,
@@ -569,8 +641,8 @@ app.post('/api/menu', (req: Request, res: Response) => {
   res.status(201).json({ success: true, data: newProduct });
 });
 
-// PUT Edit Menu Product (Admin)
-app.put('/api/menu/:id', (req: Request, res: Response) => {
+// PUT Edit Menu Product (Admin only)
+app.put('/api/menu/:id', requireAdmin, (req: Request, res: Response) => {
   const { id } = req.params;
   const index = productsStore.findIndex((p) => p.id === id);
 
@@ -607,8 +679,8 @@ app.put('/api/menu/:id', (req: Request, res: Response) => {
   res.json({ success: true, data: productsStore[index] });
 });
 
-// POST Reset Discounts (All, by Category, or by Product ID)
-app.post('/api/menu/reset-discounts', (req: Request, res: Response) => {
+// POST Reset Discounts (All, by Category, or by Product ID) — Admin only
+app.post('/api/menu/reset-discounts', requireAdmin, (req: Request, res: Response) => {
   const { category, productId, productIds } = req.body;
 
   let count = 0;
@@ -634,8 +706,8 @@ app.post('/api/menu/reset-discounts', (req: Request, res: Response) => {
   res.json({ success: true, message: `Reset discounts on ${count} items.`, data: productsStore });
 });
 
-// POST Batch Apply Discount Percentage
-app.post('/api/menu/apply-batch-discount', (req: Request, res: Response) => {
+// POST Batch Apply Discount Percentage — Admin only
+app.post('/api/menu/apply-batch-discount', requireAdmin, (req: Request, res: Response) => {
   const { category = 'All', discountPercent = 15, productIds } = req.body;
   const pct = Math.max(1, Math.min(99, Number(discountPercent) || 15));
 
@@ -662,8 +734,8 @@ app.post('/api/menu/apply-batch-discount', (req: Request, res: Response) => {
   res.json({ success: true, message: `Applied ${pct}% discount to ${count} items.`, data: productsStore });
 });
 
-// DELETE Menu Product (Admin)
-app.delete('/api/menu/:id', (req: Request, res: Response) => {
+// DELETE Menu Product (Admin only)
+app.delete('/api/menu/:id', requireAdmin, (req: Request, res: Response) => {
   const { id } = req.params;
   const initialLen = productsStore.length;
   productsStore = productsStore.filter((p) => p.id !== id);
@@ -688,8 +760,8 @@ app.get('/api/settings', (req: Request, res: Response) => {
   });
 });
 
-// PUT Update Store Settings (Admin)
-app.put('/api/settings', (req: Request, res: Response) => {
+// PUT Update Store Settings (Admin only)
+app.put('/api/settings', requireAdmin, (req: Request, res: Response) => {
   storeSettings = {
     ...storeSettings,
     ...req.body
@@ -701,8 +773,8 @@ app.put('/api/settings', (req: Request, res: Response) => {
   });
 });
 
-// POST Reset Store Settings to Defaults (Admin)
-app.post('/api/settings/reset', (req: Request, res: Response) => {
+// POST Reset Store Settings to Defaults (Admin only)
+app.post('/api/settings/reset', requireAdmin, (req: Request, res: Response) => {
   storeSettings = { ...DEFAULT_STORE_SETTINGS };
   res.json({
     success: true,
@@ -904,8 +976,8 @@ app.post('/api/orders/:id/cancel-by-customer', (req: Request, res: Response) => 
   });
 });
 
-// PATCH Update Order Status (Admin Dashboard)
-app.patch('/api/orders/:id/status', (req: Request, res: Response) => {
+// PATCH Update Order Status (Admin only — customers can only cancel via cancel-by-customer)
+app.patch('/api/orders/:id/status', requireAdmin, (req: Request, res: Response) => {
   const { id } = req.params;
   const { status } = req.body as { status: OrderStatus };
 
@@ -1007,8 +1079,8 @@ app.patch('/api/orders/:id/confirm-receipt', (req: Request, res: Response) => {
   });
 });
 
-// DELETE Order (Admin action to delete delivered, received, or cancelled order record)
-app.delete('/api/orders/:id', (req: Request, res: Response) => {
+// DELETE Order (Admin only: delete delivered, received, or cancelled order record)
+app.delete('/api/orders/:id', requireAdmin, (req: Request, res: Response) => {
   const rawId = req.params.id || '';
   const decodedId = decodeURIComponent(rawId).trim();
   const idLower = decodedId.toLowerCase();
@@ -1032,8 +1104,8 @@ app.delete('/api/orders/:id', (req: Request, res: Response) => {
   res.json({ success: true, message: 'Order record deleted successfully.', data: ordersStore });
 });
 
-// POST Bulk Delete Orders
-app.post('/api/orders/bulk-delete', (req: Request, res: Response) => {
+// POST Bulk Delete Orders — Admin only
+app.post('/api/orders/bulk-delete', requireAdmin, (req: Request, res: Response) => {
   const { ids } = req.body;
   if (Array.isArray(ids) && ids.length > 0) {
     const idSet = new Set(ids.map((i: string) => String(i).toLowerCase()));
@@ -1043,8 +1115,8 @@ app.post('/api/orders/bulk-delete', (req: Request, res: Response) => {
   res.json({ success: true, message: 'Orders deleted successfully.', data: ordersStore });
 });
 
-// GET Admin Notifications (Order Alerts)
-app.get('/api/notifications', (req: Request, res: Response) => {
+// GET Admin Notifications (Order Alerts) — Admin only
+app.get('/api/notifications', requireAdmin, (req: Request, res: Response) => {
   // Only count unread and unresolved notifications towards active badge alerts
   const unreadCount = notificationsStore.filter((n) => !n.read && !n.resolved).length;
   res.json({
@@ -1054,8 +1126,8 @@ app.get('/api/notifications', (req: Request, res: Response) => {
   });
 });
 
-// POST Mark Notifications as Read
-app.post('/api/notifications/read', (req: Request, res: Response) => {
+// POST Mark Notifications as Read — Admin only
+app.post('/api/notifications/read', requireAdmin, (req: Request, res: Response) => {
   const { id } = req.body;
   if (id) {
     const notif = notificationsStore.find((n) => n.id === id);
@@ -1066,8 +1138,8 @@ app.post('/api/notifications/read', (req: Request, res: Response) => {
   res.json({ success: true, message: 'Notifications updated.' });
 });
 
-// GET Admin Dashboard Analytics & Reporting Metrics
-app.get('/api/admin/stats', (req: Request, res: Response) => {
+// GET Admin Dashboard Analytics & Reporting Metrics — Admin only
+app.get('/api/admin/stats', requireAdmin, (req: Request, res: Response) => {
   // Exclude cancelled orders from valid sales revenue and total valid orders count!
   const validOrders = ordersStore.filter((o) => o.status !== 'cancelled');
   const cancelledOrders = ordersStore.filter((o) => o.status === 'cancelled');
@@ -1119,16 +1191,16 @@ app.get('/api/admin/stats', (req: Request, res: Response) => {
 // DATA STORAGE FOR REPORTING API
 // ==========================================
 
-// GET Reporting Snapshots
-app.get('/api/reporting/snapshots', (req: Request, res: Response) => {
+// GET Reporting Snapshots — Admin only
+app.get('/api/reporting/snapshots', requireAdmin, (req: Request, res: Response) => {
   res.json({
     success: true,
     data: reportingSnapshotsStore
   });
 });
 
-// POST Save New Reporting Snapshot
-app.post('/api/reporting/snapshots', (req: Request, res: Response) => {
+// POST Save New Reporting Snapshot — Admin only
+app.post('/api/reporting/snapshots', requireAdmin, (req: Request, res: Response) => {
   const snapshot: SalesReportSnapshot = req.body;
   if (!snapshot || !snapshot.id) {
     res.status(400).json({ success: false, message: 'Invalid snapshot payload.' });
@@ -1141,8 +1213,8 @@ app.post('/api/reporting/snapshots', (req: Request, res: Response) => {
   res.status(201).json({ success: true, data: snapshot });
 });
 
-// DELETE Reporting Snapshot
-app.delete('/api/reporting/snapshots/:id', (req: Request, res: Response) => {
+// DELETE Reporting Snapshot — Admin only
+app.delete('/api/reporting/snapshots/:id', requireAdmin, (req: Request, res: Response) => {
   const { id } = req.params;
   reportingSnapshotsStore = reportingSnapshotsStore.filter((s) => s.id !== id);
   res.json({ success: true, message: 'Snapshot removed.' });

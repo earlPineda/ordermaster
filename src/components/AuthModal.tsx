@@ -22,7 +22,7 @@ interface AuthModalProps {
   currentRole: UserRole;
   customerProfile: CustomerProfile | null;
   onCustomerLoginSuccess: (profile: CustomerProfile) => void;
-  onAdminLoginSuccess: (adminName: string) => void;
+  onAdminLoginSuccess: (adminName: string, token: string) => void;
   onGoogleSignIn?: () => Promise<void>;
   isGoogleSigningIn?: boolean;
 }
@@ -89,27 +89,31 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }, 300);
   };
 
-  // Handle Admin Sign-In
-  const handleAdminSubmit = (e: React.FormEvent) => {
+  // Handle Admin Sign-In — server-verified so customers cannot slip in.
+  const handleAdminSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     setIsLoading(true);
 
-    setTimeout(() => {
-      const user = adminUsername.trim().toLowerCase();
-      if (
-        (user === 'jazzsicat' && adminPassword === 'October-14-1990') ||
-        (user === 'admin' &&
-          (adminPassword === 'avenuecafe2025' || adminPassword === 'admin123' || adminPassword === 'admin'))
-      ) {
-        onAdminLoginSuccess('Jazz Sicat (Store Manager)');
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ emailOrPhone: adminUsername.trim(), password: adminPassword, role: 'admin' })
+      });
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.success && data.role === 'admin' && data.token) {
+        onAdminLoginSuccess(data.user?.name || 'Jazz Sicat (Store Manager)', data.token);
         setIsLoading(false);
         onClose();
       } else {
-        setErrorMsg('Invalid admin credentials. Please check your username and password.');
+        setErrorMsg(data?.message || 'Invalid admin credentials. Customers cannot access Admin.');
         setIsLoading(false);
       }
-    }, 350);
+    } catch {
+      setErrorMsg('Cannot reach server. Check your connection and try again.');
+      setIsLoading(false);
+    }
   };
 
   return (
