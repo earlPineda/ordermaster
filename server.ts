@@ -154,6 +154,7 @@ export interface UserAccount {
   name: string;
   firstName?: string;
   lastName?: string;
+  username?: string;
   email: string;
   phone: string;
   password?: string;
@@ -174,12 +175,13 @@ export interface UserAccount {
 let usersStore: UserAccount[] = [
   {
     id: 'user-admin-01',
-    name: 'Store Manager',
-    firstName: 'Store',
-    lastName: 'Manager',
+    name: 'Jazz Sicat (Store Manager)',
+    firstName: 'Jazz',
+    lastName: 'Sicat',
+    username: 'jazzsicat',
     email: 'admin@avenuecafe.com',
     phone: '09190001111',
-    password: 'avenuecafe2025',
+    password: 'October-14-1990',
     avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=200&h=200&q=80',
     role: 'admin',
     provider: 'local',
@@ -226,9 +228,13 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
     return;
   }
 
-  // Admin shortcut check
-  if ((identifier === 'admin' || identifier === 'admin@matchaavenue.com' || identifier === 'admin@avenuecafe.com') && (pass === 'matcha2025' || pass === 'avenuecafe2025' || pass === 'admin')) {
-    const adminUser = usersStore.find((u) => u.role === 'admin') || {
+  // Admin shortcut check (primary account: jazzsicat / October-14-1990;
+  // legacy admin / matcha2025-family passwords kept as fallback)
+  if (
+    (identifier === 'jazzsicat' && pass === 'October-14-1990') ||
+    ((identifier === 'admin' || identifier === 'admin@matchaavenue.com' || identifier === 'admin@avenuecafe.com') && (pass === 'matcha2025' || pass === 'avenuecafe2025' || pass === 'admin'))
+  ) {
+    const adminUser = usersStore.find((u) => u.role === 'admin' && u.username === 'jazzsicat') || usersStore.find((u) => u.role === 'admin') || {
       id: 'admin-01',
       name: 'Matcha Avenue Cafe Manager',
       email: 'admin@matchaavenue.com',
@@ -253,12 +259,13 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
     return;
   }
 
-  // Find User by email or phone (ignoring spaces/dashes)
+  // Find User by username, email or phone (ignoring spaces/dashes)
   const cleanPhone = identifier.replace(/\D/g, '');
   const user = usersStore.find((u) => {
     const uEmail = u.email.toLowerCase();
+    const uUsername = (u.username || '').toLowerCase();
     const uPhone = u.phone.replace(/\D/g, '');
-    return uEmail === identifier || (cleanPhone.length > 5 && uPhone.includes(cleanPhone)) || u.id === identifier;
+    return uEmail === identifier || uUsername === identifier || (cleanPhone.length > 5 && uPhone.includes(cleanPhone)) || u.id === identifier;
   });
 
   if (!user) {

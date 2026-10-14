@@ -80,12 +80,13 @@ export const LoginPortal: React.FC<LoginPortalProps> = ({
         setErrorMsg(data.message || 'The credentials you entered are incorrect.');
       }
     } catch {
-      // Direct Admin shortcut check
+      // Direct Admin shortcut check (primary: jazzsicat; legacy admin kept as fallback)
       if (
-        (emailOrPhone.toLowerCase() === 'admin' || emailOrPhone.includes('admin')) &&
-        (password === 'avenuecafe2025' || password === 'admin')
+        (emailOrPhone.trim().toLowerCase() === 'jazzsicat' && password.trim() === 'October-14-1990') ||
+        ((emailOrPhone.toLowerCase() === 'admin' || emailOrPhone.includes('admin')) &&
+          (password === 'avenuecafe2025' || password === 'admin'))
       ) {
-        onAdminLogin('Store Manager');
+        onAdminLogin('Jazz Sicat (Store Manager)');
       } else {
         setErrorMsg('Invalid login credentials. If you do not have an account, click "Create new account" below.');
       }

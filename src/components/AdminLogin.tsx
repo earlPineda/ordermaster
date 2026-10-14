@@ -10,8 +10,8 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
   onLoginSuccess,
   onBackToCustomer
 }) => {
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('admin123');
+  const [username, setUsername] = useState('jazzsicat');
+  const [password, setPassword] = useState('October-14-1990');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -21,19 +21,23 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
     setIsLoading(true);
 
     setTimeout(() => {
-      // Validate credentials
-      if (username.trim() === 'admin' && (password === 'admin123' || password === 'matcha2026' || password === 'avenuecafe2026' || password === 'admin')) {
-        onLoginSuccess('Matcha Avenue Cafe Manager');
+      // Specific admin account: jazzsicat (legacy admin kept as fallback)
+      const user = username.trim().toLowerCase();
+      if (
+        (user === 'jazzsicat' && password === 'October-14-1990') ||
+        (user === 'admin' && (password === 'admin123' || password === 'matcha2026' || password === 'avenuecafe2026' || password === 'admin'))
+      ) {
+        onLoginSuccess('Jazz Sicat (Store Manager)');
       } else {
-        setError('Invalid username or password. Default: admin / admin123');
+        setError('Invalid username or password. Use jazzsicat / October-14-1990');
       }
       setIsLoading(false);
     }, 400);
   };
 
   const handleQuickFill = () => {
-    setUsername('admin');
-    setPassword('admin123');
+    setUsername('jazzsicat');
+    setPassword('October-14-1990');
     setError('');
   };
 
@@ -58,7 +62,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
             <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 block">
               Default Credentials
             </span>
-            <p className="text-xs text-stone-700 font-mono">User: <strong className="text-stone-900">admin</strong> | Pass: <strong className="text-stone-900">admin123</strong></p>
+            <p className="text-xs text-stone-700 font-mono">User: <strong className="text-stone-900">jazzsicat</strong> | Pass: <strong className="text-stone-900">October-14-1990</strong></p>
           </div>
           <button
             type="button"

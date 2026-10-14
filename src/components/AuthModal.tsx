@@ -96,11 +96,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setIsLoading(true);
 
     setTimeout(() => {
+      const user = adminUsername.trim().toLowerCase();
       if (
-        adminUsername.trim() === 'admin' &&
-        (adminPassword === 'avenuecafe2025' || adminPassword === 'admin123' || adminPassword === 'admin')
+        (user === 'jazzsicat' && adminPassword === 'October-14-1990') ||
+        (user === 'admin' &&
+          (adminPassword === 'avenuecafe2025' || adminPassword === 'admin123' || adminPassword === 'admin'))
       ) {
-        onAdminLoginSuccess('Store Manager');
+        onAdminLoginSuccess('Jazz Sicat (Store Manager)');
         setIsLoading(false);
         onClose();
       } else {
