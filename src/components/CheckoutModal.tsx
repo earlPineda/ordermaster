@@ -23,7 +23,7 @@ import {
   Sparkles,
   LocateFixed
 } from 'lucide-react';
-import { CartItem, CustomerInfo, DeliveryType, PaymentMethod, Order, CustomerCoordinates } from '../types';
+import { CartItem, CustomerInfo, DeliveryType, PaymentMethod, Order, CustomerCoordinates, StoreSettings } from '../types';
 import { formatPeso, validatePHMobileNumber, validateEWalletRefNumber } from '../utils/format';
 import { GoogleMapsLocationPicker } from './GoogleMapsLocationPicker';
 
@@ -33,6 +33,7 @@ interface CheckoutModalProps {
   cartItems: CartItem[];
   deliveryType: DeliveryType;
   onOrderSuccess: (order: Order) => void;
+  storeSettings?: StoreSettings;
 }
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
@@ -40,7 +41,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   onClose,
   cartItems,
   deliveryType: initialDeliveryType,
-  onOrderSuccess
+  onOrderSuccess,
+  storeSettings
 }) => {
   const [selectedDeliveryType, setSelectedDeliveryType] = useState<DeliveryType>(initialDeliveryType || 'dine_in');
   const [tableNumber, setTableNumber] = useState<string>('4');
@@ -94,7 +96,22 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const deliveryFee = selectedDeliveryType === 'delivery' ? (subtotal > 800 ? 0 : 50) : 0;
   const total = subtotal + tax + deliveryFee;
 
-  const merchantEWalletNumber = '0917 888 2233';
+  // FIX: merchant info now comes from live storeSettings (admin-editable),
+  // not hardcoded strings. Falls back to defaults for backwards compat.
+  const merchantInfo = {
+    gcash: {
+      number: storeSettings?.merchantGcashNumber || '09178882233',
+      name: storeSettings?.merchantGcashName || 'MATCHA AVENUE CAFE',
+      qrUrl: storeSettings?.merchantGcashQrUrl || ''
+    },
+    maya: {
+      number: storeSettings?.merchantMayaNumber || '09178882233',
+      name: storeSettings?.merchantMayaName || 'MATCHA AVENUE CAFE',
+      qrUrl: storeSettings?.merchantMayaQrUrl || ''
+    }
+  };
+  const activeMerchant = paymentMethod === 'maya' ? merchantInfo.maya : merchantInfo.gcash;
+  const merchantEWalletNumber = activeMerchant.number;
 
   // Calculate dynamic pick-up time slot presets based on current clock
   const now = new Date();
@@ -112,7 +129,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   ];
 
   const copyMerchantNumber = () => {
-    navigator.clipboard.writeText('09178882233');
+    navigator.clipboard.writeText(activeMerchant.number.replace(/\s/g, ''));
     setCopiedAccount(true);
     setTimeout(() => setCopiedAccount(false), 2000);
   };
@@ -668,11 +685,11 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 </div>
               </div>
 
-              {/* Merchant Account info box */}
+                {/* Merchant Account info box — live from admin settings */}
               <div className="bg-white p-3 rounded-lg border border-stone-200 flex items-center justify-between">
                 <div>
                   <span className="text-[10px] uppercase tracking-wider text-stone-500 block">
-                    Merchant Name: <strong className="text-stone-800">Matcha Avenue Cafe BGC</strong>
+                    Merchant Name: <strong className="text-stone-800">{activeMerchant.name}</strong>
                   </span>
                   <span className="font-mono text-sm font-bold text-stone-900">{merchantEWalletNumber}</span>
                 </div>
@@ -694,6 +711,31 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   )}
                 </button>
               </div>
+
+              {/* Custom merchant QR (uploaded in Admin → Store Customizer). */}
+              {activeMerchant.qrUrl ? (
+                <div className="bg-white p-3 rounded-lg border border-stone-200 flex items-center gap-3">
+                  <img
+                    src={activeMerchant.qrUrl}
+                    alt={`${paymentMethod.toUpperCase()} payment QR code`}
+                    className="w-28 h-28 object-contain rounded-md border border-stone-100 bg-white"
+                  />
+                  <div className="text-left">
+                    <p className="text-xs font-bold text-stone-900 flex items-center gap-1">
+                      <QrCode className="w-3.5 h-3.5" /> Scan to pay with {paymentMethod.toUpperCase()}
+                    </p>
+                    <p className="text-[11px] text-stone-500 mt-1">
+                      Open your {paymentMethod.toUpperCase()} app → Scan QR → send{' '}
+                      <strong className="text-stone-800 font-mono">{formatPeso(total)}</strong>, then enter your reference number below.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-[10px] text-stone-500 flex items-center gap-1 px-0.5">
+                  <QrCode className="w-3 h-3 text-stone-400" />
+                  No QR uploaded yet — send to the number above, or ask the store to add one in Admin → Store Customizer.
+                </p>
+              )}
 
               {/* Validation Inputs for GCash / Maya */}
               <div className="space-y-2.5 pt-1">

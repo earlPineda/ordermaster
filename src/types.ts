@@ -66,8 +66,10 @@ export interface StoreSettings {
   freeDeliveryThreshold: number;
   merchantGcashNumber: string;
   merchantGcashName: string;
+  merchantGcashQrUrl?: string;
   merchantMayaNumber: string;
   merchantMayaName: string;
+  merchantMayaQrUrl?: string;
   customCategories: string[];
   showFeaturedSection: boolean;
   showSaleSection: boolean;

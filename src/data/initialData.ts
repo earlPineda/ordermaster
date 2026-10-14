@@ -24,8 +24,10 @@ export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   freeDeliveryThreshold: 500.00,
   merchantGcashNumber: '09178882233',
   merchantGcashName: 'MATCHA AVENUE CAFE BGC - MARIA S.',
+  merchantGcashQrUrl: '',
   merchantMayaNumber: '09178882233',
   merchantMayaName: 'MATCHA AVENUE CAFE ENTERPRISES',
+  merchantMayaQrUrl: '',
   customCategories: [
     'All',
     'Matcha Classics',

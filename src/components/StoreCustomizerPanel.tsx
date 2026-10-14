@@ -66,6 +66,8 @@ export const StoreCustomizerPanel: React.FC<StoreCustomizerPanelProps> = ({
 
   const logoFileRef = useRef<HTMLInputElement>(null);
   const heroFileRef = useRef<HTMLInputElement>(null);
+  const gcashQrFileRef = useRef<HTMLInputElement>(null);
+  const mayaQrFileRef = useRef<HTMLInputElement>(null);
 
   /** Downscales large uploads on a canvas so saves stay fast and never hit the API body limit. */
   const fileToResizedDataUrl = (file: File, maxDimension: number): Promise<string> => {
@@ -119,7 +121,7 @@ export const StoreCustomizerPanel: React.FC<StoreCustomizerPanelProps> = ({
   };
 
   /** Reads an uploaded image file into a (resized) base64 data URL and stores it on the settings. */
-  const handleImageUpload = async (file: File, field: 'logoUrl' | 'heroImage') => {
+  const handleImageUpload = async (file: File, field: 'logoUrl' | 'heroImage' | 'merchantGcashQrUrl' | 'merchantMayaQrUrl') => {
     if (!file.type.startsWith('image/')) {
       alert('Please select a valid image file (JPG, PNG, WEBP, GIF, SVG).');
       return;
@@ -131,13 +133,11 @@ export const StoreCustomizerPanel: React.FC<StoreCustomizerPanelProps> = ({
     setIsUploading(true);
     setSaveError(null);
     try {
-      // Logo stays small/square-ish, banner keeps more detail.
-      const maxDimension = field === 'logoUrl' ? 512 : 1280;
+      // Logo + QR stay small/square-ish, banner keeps more detail.
+      const maxDimension = field === 'heroImage' ? 1280 : 512;
       const dataUrl = await fileToResizedDataUrl(file, maxDimension);
       if (!dataUrl) return;
-      setFormData((prev) =>
-        field === 'logoUrl' ? { ...prev, logoUrl: dataUrl } : { ...prev, heroImage: dataUrl }
-      );
+      setFormData((prev) => ({ ...prev, [field]: dataUrl }));
     } catch {
       setSaveError('Could not read that image. Please try a JPG or PNG file.');
     } finally {
@@ -861,6 +861,49 @@ export const StoreCustomizerPanel: React.FC<StoreCustomizerPanelProps> = ({
                     className="w-full bg-white text-xs text-stone-900 px-3 py-1.5 rounded-lg border border-stone-200 focus:outline-none focus:border-sky-600 font-mono font-semibold"
                   />
                 </div>
+                <div>
+                  <label className="block text-[11px] text-stone-600 mb-1 font-medium">GCash QR Code (customizable)</label>
+                  <div className="flex items-center gap-3">
+                    {formData.merchantGcashQrUrl ? (
+                      <img src={formData.merchantGcashQrUrl} alt="GCash QR preview" className="w-20 h-20 object-contain rounded-lg border border-stone-200 bg-white" />
+                    ) : (
+                      <div className="w-20 h-20 rounded-lg border border-dashed border-stone-300 bg-white flex items-center justify-center text-[10px] text-stone-400 text-center px-1">
+                        No QR uploaded
+                      </div>
+                    )}
+                    <div className="flex flex-col gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => gcashQrFileRef.current?.click()}
+                        disabled={isUploading}
+                        className="px-2.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs disabled:opacity-50"
+                      >
+                        <Upload className="w-3.5 h-3.5" /> {formData.merchantGcashQrUrl ? 'Replace QR' : 'Upload QR'}
+                      </button>
+                      {formData.merchantGcashQrUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, merchantGcashQrUrl: '' })}
+                          className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-stone-100 text-stone-600 text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer transition-colors border border-stone-200"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" /> Remove
+                        </button>
+                      )}
+                      <input
+                        ref={gcashQrFileRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp,image/gif"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleImageUpload(file, 'merchantGcashQrUrl');
+                          e.target.value = '';
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-stone-400 mt-1">Shown to customers at checkout.</p>
+                </div>
               </div>
 
               {/* Maya */}
@@ -885,6 +928,49 @@ export const StoreCustomizerPanel: React.FC<StoreCustomizerPanelProps> = ({
                     placeholder="09178882233"
                     className="w-full bg-white text-xs text-stone-900 px-3 py-1.5 rounded-lg border border-stone-200 focus:outline-none focus:border-emerald-600 font-mono font-semibold"
                   />
+                </div>
+                <div>
+                  <label className="block text-[11px] text-stone-600 mb-1 font-medium">Maya QR Code (customizable)</label>
+                  <div className="flex items-center gap-3">
+                    {formData.merchantMayaQrUrl ? (
+                      <img src={formData.merchantMayaQrUrl} alt="Maya QR preview" className="w-20 h-20 object-contain rounded-lg border border-stone-200 bg-white" />
+                    ) : (
+                      <div className="w-20 h-20 rounded-lg border border-dashed border-stone-300 bg-white flex items-center justify-center text-[10px] text-stone-400 text-center px-1">
+                        No QR uploaded
+                      </div>
+                    )}
+                    <div className="flex flex-col gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => mayaQrFileRef.current?.click()}
+                        disabled={isUploading}
+                        className="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer transition-colors shadow-xs disabled:opacity-50"
+                      >
+                        <Upload className="w-3.5 h-3.5" /> {formData.merchantMayaQrUrl ? 'Replace QR' : 'Upload QR'}
+                      </button>
+                      {formData.merchantMayaQrUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, merchantMayaQrUrl: '' })}
+                          className="px-2.5 py-1.5 rounded-lg bg-white hover:bg-stone-100 text-stone-600 text-[11px] font-semibold flex items-center gap-1.5 cursor-pointer transition-colors border border-stone-200"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" /> Remove
+                        </button>
+                      )}
+                      <input
+                        ref={mayaQrFileRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp,image/gif"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleImageUpload(file, 'merchantMayaQrUrl');
+                          e.target.value = '';
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-stone-400 mt-1">Shown to customers at checkout.</p>
                 </div>
               </div>
             </div>

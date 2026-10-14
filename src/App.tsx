@@ -940,6 +940,7 @@ export default function App() {
         cartItems={cartItems}
         deliveryType={deliveryType}
         onOrderSuccess={handleOrderSuccess}
+        storeSettings={storeSettings}
       />
 
       {/* Live Order Tracker Modal */}
