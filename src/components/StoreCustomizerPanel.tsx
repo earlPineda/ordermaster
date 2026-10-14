@@ -41,47 +41,135 @@ export const StoreCustomizerPanel: React.FC<StoreCustomizerPanelProps> = ({
   onResetSettings,
   onCategoriesUpdate
 }) => {
-  const [formData, setFormData] = useState<StoreSettings>({ ...settings });
   const [subTab, setSubTab] = useState<'branding' | 'announcements' | 'delivery_payment' | 'categories'>('branding');
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [newCategoryInput, setNewCategoryInput] = useState('');
+  // Tracks whether the admin has unsaved edits (e.g. a freshly picked image).
+  // While dirty, background polling must NOT overwrite the form.
+  const isDirtyRef = useRef(false);
+  const lastSettingsJsonRef = useRef<string>(JSON.stringify(settings));
+
+  const [formDataRaw, setFormDataRaw] = useState<StoreSettings>({ ...settings });
+  // Wrapper: every admin edit (typing, upload, delete) marks the form dirty
+  // so the 3.5s background poll never wipes unsaved work.
+  const setFormData = (
+    next: StoreSettings | ((prev: StoreSettings) => StoreSettings)
+  ) => {
+    isDirtyRef.current = true;
+    setSaveError(null);
+    setFormDataRaw((prev) => (typeof next === 'function' ? (next as (p: StoreSettings) => StoreSettings)(prev) : next));
+  };
+  const formData = formDataRaw;
 
   const logoFileRef = useRef<HTMLInputElement>(null);
   const heroFileRef = useRef<HTMLInputElement>(null);
 
-  /** Reads an uploaded image file into a base64 data URL and stores it on the settings. */
-  const handleImageUpload = (file: File, field: 'logoUrl' | 'heroImage') => {
+  /** Downscales large uploads on a canvas so saves stay fast and never hit the API body limit. */
+  const fileToResizedDataUrl = (file: File, maxDimension: number): Promise<string> => {
+    // SVG / GIF must stay as-is to preserve vectors / animation.
+    if (file.type === 'image/svg+xml' || file.type === 'image/gif') {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error('Could not read that image file.'));
+        reader.readAsDataURL(file);
+      });
+    }
+    return new Promise((resolve, reject) => {
+      const objectUrl = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        try {
+          let { width, height } = img;
+          const scale = Math.min(1, maxDimension / Math.max(width, height));
+          width = Math.max(1, Math.round(width * scale));
+          height = Math.max(1, Math.round(height * scale));
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) throw new Error('Canvas not supported');
+          ctx.drawImage(img, 0, 0, width, height);
+          URL.revokeObjectURL(objectUrl);
+          // Prefer webp when the browser can encode it, otherwise jpeg.
+          let dataUrl = '';
+          try {
+            dataUrl = canvas.toDataURL('image/webp', 0.85);
+            if (!dataUrl.startsWith('data:image/webp')) {
+              dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            }
+          } catch {
+            dataUrl = canvas.toDataURL('image/png');
+          }
+          resolve(dataUrl);
+        } catch (err) {
+          URL.revokeObjectURL(objectUrl);
+          reject(err);
+        }
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error('Could not read that image file.'));
+      };
+      img.src = objectUrl;
+    });
+  };
+
+  /** Reads an uploaded image file into a (resized) base64 data URL and stores it on the settings. */
+  const handleImageUpload = async (file: File, field: 'logoUrl' | 'heroImage') => {
     if (!file.type.startsWith('image/')) {
       alert('Please select a valid image file (JPG, PNG, WEBP, GIF, SVG).');
       return;
     }
-    if (file.size > 2 * 1024 * 1024) {
-      alert('Please choose an image smaller than 2 MB so the storefront stays fast.');
+    if (file.size > 8 * 1024 * 1024) {
+      alert('Please choose an image smaller than 8 MB.');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      if (!result) return;
+    setIsUploading(true);
+    setSaveError(null);
+    try {
+      // Logo stays small/square-ish, banner keeps more detail.
+      const maxDimension = field === 'logoUrl' ? 512 : 1280;
+      const dataUrl = await fileToResizedDataUrl(file, maxDimension);
+      if (!dataUrl) return;
       setFormData((prev) =>
-        field === 'logoUrl' ? { ...prev, logoUrl: result } : { ...prev, heroImage: result }
+        field === 'logoUrl' ? { ...prev, logoUrl: dataUrl } : { ...prev, heroImage: dataUrl }
       );
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      setSaveError('Could not read that image. Please try a JPG or PNG file.');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   useEffect(() => {
-    setFormData({ ...settings });
+    // App.tsx polls /api/settings every ~3.5s and passes a NEW `settings`
+    // object each time. Blindly copying it wipes an image the admin just
+    // picked but hasn't saved yet. Only resync when the server data
+    // actually changed AND the admin has no unsaved edits.
+    const incomingJson = JSON.stringify(settings);
+    if (incomingJson === lastSettingsJsonRef.current) return;
+    lastSettingsJsonRef.current = incomingJson;
+    if (isDirtyRef.current) return;
+    setFormDataRaw({ ...settings });
   }, [settings]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
+    setSaveError(null);
     try {
       await onSaveSettings(formData);
+      // Save succeeded only if the parent didn't throw.
+      isDirtyRef.current = false;
+      lastSettingsJsonRef.current = JSON.stringify(formData);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (err: any) {
+      setSaveError(err?.message || 'Could not save. The image may be too large — try a smaller file.');
     } finally {
       setIsSaving(false);
     }
@@ -90,10 +178,14 @@ export const StoreCustomizerPanel: React.FC<StoreCustomizerPanelProps> = ({
   const handleReset = async () => {
     if (window.confirm('Reset all storefront text, banners, announcement, and pricing to default settings?')) {
       setIsSaving(true);
+      setSaveError(null);
       try {
         await onResetSettings();
+        isDirtyRef.current = false;
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 3000);
+      } catch (err: any) {
+        setSaveError(err?.message || 'Could not reset settings.');
       } finally {
         setIsSaving(false);
       }
@@ -179,11 +271,21 @@ export const StoreCustomizerPanel: React.FC<StoreCustomizerPanelProps> = ({
         </div>
       </div>
 
-      {/* Success Notification */}
+      {/* Success / Error Notification */}
       {saveSuccess && (
         <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2 font-semibold shadow-xs">
           <Check className="w-4 h-4 text-emerald-600" />
           <span>Storefront changes published successfully! Customers will see the new content immediately.</span>
+        </div>
+      )}
+      {saveError && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 font-semibold shadow-xs">
+          {saveError}
+        </div>
+      )}
+      {isUploading && (
+        <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 font-semibold shadow-xs">
+          Processing image… please wait a moment, then click “Publish to Customer View”.
         </div>
       )}
 
@@ -355,7 +457,7 @@ export const StoreCustomizerPanel: React.FC<StoreCustomizerPanelProps> = ({
                   >
                     <Trash2 className="w-3.5 h-3.5" /> Use Default
                   </button>
-                  <span className="text-[10px] text-stone-400">PNG / JPG / SVG · square works best · under 2 MB</span>
+                  <span className="text-[10px] text-stone-400">PNG / JPG / SVG · square works best · under 8 MB (auto-resized)</span>
                 </div>
                 <input
                   ref={logoFileRef}
@@ -414,7 +516,7 @@ export const StoreCustomizerPanel: React.FC<StoreCustomizerPanelProps> = ({
                   >
                     <Trash2 className="w-3.5 h-3.5" /> Use Default
                   </button>
-                  <span className="text-[10px] text-stone-400">Wide (e.g. 1600×600) · under 2 MB</span>
+                  <span className="text-[10px] text-stone-400">Wide (e.g. 1600×600) · under 8 MB (auto-resized)</span>
                 </div>
                 <input
                   ref={heroFileRef}

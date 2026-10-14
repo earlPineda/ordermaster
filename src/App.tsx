@@ -679,20 +679,24 @@ export default function App() {
   };
 
   const handleSaveStoreSettings = async (updated: StoreSettings) => {
-    try {
-      const res = await fetch('/api/settings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updated)
-      });
-      if (res.ok) {
-        const result = await res.json();
-        if (result.success && result.data) {
-          setStoreSettings(result.data);
-        }
-      }
-    } catch (err) {
-      console.error('Save store settings error:', err);
+    const res = await fetch('/api/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated)
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(
+        res.status === 413
+          ? 'Image too large for server. Try a smaller file (under 2 MB) or a URL.'
+          : `Save failed (server ${res.status}). ${text.slice(0, 120)}`
+      );
+    }
+    const result = await res.json();
+    if (result.success && result.data) {
+      setStoreSettings(result.data);
+    } else {
+      throw new Error(result.message || 'Save failed.');
     }
   };
 
